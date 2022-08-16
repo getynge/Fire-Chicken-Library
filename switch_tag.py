@@ -7,15 +7,19 @@ class SwitchTag:
         self.name = name
         self.context = Context()
         manager.insert(self)
-    def activate(self):
+    def on(self):
         self.context.tags = [self.get_name()]
-    def deactivate(self):
+    def activate(self):
+        self.on()
+    def off(self):
         self.context.tags = []
+    def deactivate(self):
+        self.off()
     def switch(self):
         if len(self.context.tags) == 0:
-            self.activate()
+            self.on()
         else:
-            self.deactivate()
+            self.off()
 
     def get_name(self) -> str:
         return 'user.' + self.name
@@ -39,12 +43,12 @@ manager = SwitchTagManager()
 module = Module()
 @module.action_class
 class Actions:
-    def fire_chicken_switch_tag_activate(name: str):
+    def switch_tag_on(name: str):
         '''Activates the specified switch tag'''
-        manager.get(name).activate()
-    def fire_chicken_switch_tag_deactivate(name: str):
+        manager.get(name).on()
+    def switch_tag_off(name: str):
         '''Deactivates the specified switch tag'''
-        manager.get(name).deactivate()
-    def fire_chicken_switch_tag_switch(name: str):
+        manager.get(name).off()
+    def switch_tag_switch(name: str):
         '''Toggles the specified switch tag'''
         manager.get(name).switch()
