@@ -1,4 +1,4 @@
-from talon import actions, settings, Module
+from talon import actions, Module
 
 class DelaySetting:
     def __init__(self, name: str, default_amount: int, description: str, units: str = 'ms'):
