@@ -1,5 +1,4 @@
 from talon import ctrl, actions
-import os
 
 class MousePosition:
     STRING_START = '('
