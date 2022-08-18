@@ -2,13 +2,15 @@ import os
 import inspect
 from .mouse_position import MousePosition
 
+class DirectoryNotAbsolute(Exception):
+    pass
+
 class Storage:
     def __init__(self, dir, *, max_bytes = 50000000):
         if _directory_is_absolute_path(dir):
             self.dir = dir
         else:
-            calling_file = inspect.stack()[0][1]
-            self.dir = _join_path_to_file_directory(dir, calling_file)
+            raise DirectoryNotAbsolute(dir)
         _create_directory_if_nonexistent(self.dir)
         self.max_bytes = max_bytes
 
@@ -40,10 +42,25 @@ def _create_directory_if_nonexistent(directory):
 def _directory_is_absolute_path(path):
     return os.path.isabs(path)
 
-def _join_path_to_file_directory(path, filepath):
-    absolute_filepath = os.path.abspath(filepath)
+class RelativeStorage(Storage):
+    def __init__(self, path, name = 'Fire Chicken Storage', *, max_bytes = 50000000):
+        target_directory = _compute_directory_at_path(path)
+        dir = _join_path(target_directory, name)
+        Storage.__init__(self, dir, max_bytes = max_bytes)
+
+def _compute_directory_at_path(path):
+    if os.path.isdir(path):
+        return path
+    else:
+        return _compute_file_directory(path)
+
+def _compute_file_directory(path):
+    absolute_filepath = os.path.abspath(path)
     file_directory = os.path.dirname(absolute_filepath)
-    return os.path.join(file_directory, path)
+    return file_directory
+
+def _join_path(directory, path):
+    return os.path.join(directory, path)
 
 #Parent class not meant to be instantiated
 #Implement Python string method for storing object for storage
