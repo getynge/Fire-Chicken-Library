@@ -16,22 +16,22 @@ class Storage:
         _create_directory_if_nonexistent(self.dir)
         self.max_bytes = max_bytes
 
-    def position(self, name: str):
-        return self._get_storage_file(MousePositionFile, name) 
+    def position_file(self, name: str):
+        return self.get_storage_file(MousePositionFile, name) 
     
-    def integer(self, name: str):
-        return self._get_storage_file(IntegerFile, name)
+    def integer_file(self, name: str):
+        return self.get_storage_file(IntegerFile, name)
     
-    def float(self, name: str):
-        return self._get_storage_file(FloatFile, name)
+    def float_file(self, name: str):
+        return self.get_storage_file(FloatFile, name)
     
-    def string(self, name: str):
-        return self._get_storage_file(StringFile, name)
+    def string_file(self, name: str):
+        return self.get_storage_file(StringFile, name)
     
-    def boolean(self, name: str):
-        return self._get_storage_file(BooleanFile, name)
+    def boolean_file(self, name: str):
+        return self.get_storage_file(BooleanFile, name)
 
-    def _get_storage_file(self, type, name: str):
+    def get_storage_file(self, type, name: str):
         return type.create(self.get_path(), name, max_bytes = self.max_bytes)
 
     def get_path(self):
