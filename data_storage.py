@@ -1,5 +1,5 @@
 import os
-import inspect
+
 from .mouse_position import MousePosition
 
 class DirectoryNotAbsolute(Exception):
