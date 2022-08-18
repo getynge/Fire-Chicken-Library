@@ -1,4 +1,4 @@
-import os
+import os, json
 
 from .mouse_position import MousePosition
 
@@ -30,6 +30,9 @@ class Storage:
     
     def boolean_file(self, name: str):
         return self.get_storage_file(BooleanFile, name)
+
+    def json_file(self, name: str):
+        return self.get_storage_file(JSONFile, name)
 
     def get_storage_file(self, type, name: str):
         return type.create(self.get_path(), name, max_bytes = self.max_bytes)
@@ -122,6 +125,33 @@ class StorageFile:
             self.set(initial_value)
     def _make_directory_if_nonexistent(self):
         _create_directory_if_nonexistent(self.folder)
+
+class JSONFile(StorageFile):
+    def __init__(self, folder: str, name: str, *, max_bytes: int = DEFAULT_MAX_BYTES, initial_value = None, 
+        default = None, cls = None, construct_object_from_json_func = None):
+        self.initial_value = initial_value
+        self.default = default
+        self.cls = cls
+        if default is not None and cls is not None:
+            raise ValueError('JSONFile objects should not receive default and cls')
+        self.construct_object_from_json_func = construct_object_from_json_func
+        StorageFile.__init__(self, folder, name, max_bytes = max_bytes)
+
+    def _convert_to_text(self) -> str:
+        if self.default is not None:
+            return json.dumps(self.value, default = self.default)
+        if self.cls is not None:
+            return json.dumps(self.value, cls = self.cls)
+        return json.dumps(self.value)
+    
+    def get_value_from_text(self, text: str):
+        json_value = json.loads(text)
+        if self.construct_object_from_json_func is None:
+            return json_value
+        return self.construct_object_from_json_func(json_value)
+    
+    def _initial_value(self):
+        return self.initial_value
 
 class InvalidFileSizeException(Exception):
     pass
