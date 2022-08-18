@@ -5,8 +5,10 @@ from .mouse_position import MousePosition
 class DirectoryNotAbsolute(Exception):
     pass
 
+DEFAULT_MAX_BYTES = 50000000
 class Storage:
-    def __init__(self, dir, *, max_bytes = 50000000):
+    #Half a gigabyte
+    def __init__(self, dir, *, max_bytes = DEFAULT_MAX_BYTES):
         if _directory_is_absolute_path(dir):
             self.dir = dir
         else:
@@ -43,7 +45,7 @@ def _directory_is_absolute_path(path):
     return os.path.isabs(path)
 
 class RelativeStorage(Storage):
-    def __init__(self, path, name = 'Fire Chicken Storage', *, max_bytes = 50000000):
+    def __init__(self, path, name = 'Fire Chicken Storage', *, max_bytes = DEFAULT_MAX_BYTES):
         target_directory = _compute_directory_at_path(path)
         dir = _join_path(target_directory, name)
         Storage.__init__(self, dir, max_bytes = max_bytes)
@@ -67,14 +69,14 @@ def _join_path(directory, path):
 #Implement classmethod get_value_from_text for reading from the file
 #Implement _initial_value for setting the initial value
 class StorageFile:
-    def __init__(self, folder: str, name: str, *, max_bytes: int = 50000000):
+    def __init__(self, folder: str, name: str, *, max_bytes: int = DEFAULT_MAX_BYTES):
         self.folder = folder
         self.name = name
         self.max_bytes = max_bytes
         self._initialize_file_if_nonexistent()
         self._retrieve_value()
     @classmethod
-    def create(cls, folder: str, name: str, *, max_bytes: int = 50000000):
+    def create(cls, folder: str, name: str, *, max_bytes: int = DEFAULT_MAX_BYTES):
         return cls(folder, name, max_bytes = max_bytes)
 
 
