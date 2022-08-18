@@ -66,6 +66,7 @@ def _join_path(directory, path):
 
 #Parent class not meant to be instantiated
 #Implement Python string method for storing object for storage
+    #or override _convert_to_text
 #Implement classmethod get_value_from_text for reading from the file
 #Implement _initial_value for setting the initial value
 class StorageFile:
@@ -89,9 +90,12 @@ class StorageFile:
     
     def _store_value(self):
         with open(self.get_path(), 'w') as value_file:
-            value_text = str(self.value)
+            value_text = self._convert_to_text()
             value_file.write(value_text)
     
+    def _convert_to_text(self) -> str:
+        return str(self.value)
+
     def _retrieve_value(self):
         if self._file_too_big():
             self._raise_file_too_big_exception()
