@@ -17,25 +17,25 @@ class Storage:
         self.max_bytes = max_bytes
 
     def position_file(self, name: str):
-        return self.get_storage_file(MousePositionFile, name) 
+        return self.storage_file(name, MousePositionFile) 
     
     def integer_file(self, name: str):
-        return self.get_storage_file(IntegerFile, name)
+        return self.storage_file(name, IntegerFile)
     
     def float_file(self, name: str):
-        return self.get_storage_file(FloatFile, name)
+        return self.storage_file(name, FloatFile)
     
     def string_file(self, name: str):
-        return self.get_storage_file(StringFile, name)
+        return self.storage_file(name, StringFile)
     
     def boolean_file(self, name: str):
-        return self.get_storage_file(BooleanFile, name)
+        return self.storage_file(name, BooleanFile)
 
-    def json_file(self, name: str, *, default = None, cls = None, object_from_json = None, initial_value = None):
-        return JSONFile(self.get_path(), name, default = default, cls = cls, 
-        object_from_json = object_from_json, initial_value = initial_value)
+    def json_file(self, name: str, from_json = None, *, default = None, cls = None, initial_value = None):
+        return JSONFile(self.get_path(), name, from_json = from_json, default = default, cls = cls, 
+        initial_value = initial_value)
 
-    def get_storage_file(self, type, name: str):
+    def storage_file(self, name: str, type):
         return type.create(self.get_path(), name, max_bytes = self.max_bytes)
 
     def get_path(self):
@@ -129,13 +129,16 @@ class StorageFile:
 
 class JSONFile(StorageFile):
     def __init__(self, folder: str, name: str, *, max_bytes: int = DEFAULT_MAX_BYTES, initial_value = None, 
-        default = None, cls = None, object_from_json = None):
+        default = None, cls = None, from_json = None):
         self.initial_value = initial_value
         self.default = default
         self.cls = cls
         if default is not None and cls is not None:
             raise ValueError('JSONFile objects should not receive default and cls')
-        self.object_from_json = object_from_json
+        if hasattr(from_json, 'from_json') and callable(from_json.from_json):
+            self.object_from_json = from_json.from_json
+        else:
+            self.object_from_json = from_json
         StorageFile.__init__(self, folder, name, max_bytes = max_bytes)
 
     def _convert_to_text(self) -> str:
@@ -144,9 +147,6 @@ class JSONFile(StorageFile):
         if self.cls is not None:
             return json.dumps(self.value, cls = self.cls)
         if hasattr(self.value, 'to_json') and callable(self.value.to_json):
-            if self.object_from_json is None and hasattr(self.value, 'from_json')\
-                and callable(self.value.from_json):
-                self.object_from_json = self.value.from_json
             return json.dumps(self.value.to_json())
         return json.dumps(self.value)
     
