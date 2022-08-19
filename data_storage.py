@@ -150,12 +150,12 @@ class JSONFile(StorageFile):
 
     def _convert_to_text(self) -> str:
         if self._encoder_function_provided():
-            return json.dumps(self.value, default = self.default)
+            return self._encode_using_encoder_function()
         if self._encoder_class_provided():
-            return json.dumps(self.value, cls = self.cls)
+            return self._encode_using_encoder_class()
         if self._value_has_encoder_method():
-            return json.dumps(self.value.to_json())
-        return json.dumps(self.value)
+            return self._encode_using_encoder_method()
+        return self._encode_using_json_default_encoding()
 
     def _encoder_function_provided(self):
         return self.default is not None
@@ -164,6 +164,15 @@ class JSONFile(StorageFile):
     def _value_has_encoder_method(self):
         return hasattr(self.value, 'to_json') and callable(self.value.to_json)
     
+    def _encode_using_encoder_function(self):
+        return json.dumps(self.value, default = self.default)
+    def _encode_using_encoder_class(self):
+        return json.dumps(self.value, cls = self.cls)
+    def _encode_using_encoder_method(self):
+        return json.dumps(self.value.to_json())
+    def _encode_using_json_default_encoding(self):
+        return json.dumps(self.value)
+
     def get_value_from_text(self, text: str):
         json_value = json.loads(text)
         if self.object_from_json is None:
