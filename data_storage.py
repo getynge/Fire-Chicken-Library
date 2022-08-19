@@ -120,15 +120,20 @@ class StorageFile:
         return os.path.join(self.folder, self.name)
 
     def _initialize_file_if_nonexistent(self):
-        if not os.path.exists(self.get_path()):
-            self._initialize_file()
-            
-    def _initialize_file(self):
+        if self.exists():
+            self.initialize_file()
+    def exists(self):
+        return not os.path.exists(self.get_path())
+    def initialize_file(self):
         self._make_directory_if_nonexistent()
         initial_value = self._initial_value()
         self.set(initial_value)
+    
     def _make_directory_if_nonexistent(self):
         _create_directory_if_nonexistent(self.folder)
+    
+    def delete(self):
+        os.remove(self.get_path())
 
 class JSONFile(StorageFile):
     def __init__(self, folder: str, name: str, *, max_bytes: int = DEFAULT_MAX_BYTES, initial_value = None, 
