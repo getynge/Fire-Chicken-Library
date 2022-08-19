@@ -121,10 +121,10 @@ class StorageFile:
 
     def _initialize_file_if_nonexistent(self):
         if self.exists():
-            self.initialize_file()
+            self.initialize()
     def exists(self):
         return not os.path.exists(self.get_path())
-    def initialize_file(self):
+    def initialize(self):
         self._make_directory_if_nonexistent()
         initial_value = self._initial_value()
         self.set(initial_value)
