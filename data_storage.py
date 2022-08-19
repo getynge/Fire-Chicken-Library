@@ -1,4 +1,5 @@
 import os, json
+import inspect
 
 from .mouse_position import MousePosition
 
@@ -151,10 +152,16 @@ class JSONFile(StorageFile):
 
     @staticmethod
     def _get_from_json_function(from_json):
-        if hasattr(from_json, 'from_json') and callable(from_json.from_json):
-            return from_json.from_json
+        if JSONFile._from_json_function_is_method(from_json):
+            return JSONFile._get_from_json_function_from_class(from_json)
         else:
             return from_json
+    @staticmethod
+    def _from_json_function_is_method(from_json):
+        return hasattr(from_json, 'from_json') and callable(from_json.from_json)
+    @staticmethod
+    def _get_from_json_function_from_class(classname):
+        return lambda value : classname.from_json(value)
 
     def _convert_to_text(self) -> str:
         if self._encoder_function_provided():
