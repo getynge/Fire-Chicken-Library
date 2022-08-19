@@ -133,22 +133,36 @@ class JSONFile(StorageFile):
         self.initial_value = initial_value
         self.default = default
         self.cls = cls
-        if default is not None and cls is not None:
-            raise ValueError('JSONFile objects should not receive default and cls')
-        if hasattr(from_json, 'from_json') and callable(from_json.from_json):
-            self.object_from_json = from_json.from_json
-        else:
-            self.object_from_json = from_json
+        self._raise_exception_if_invalid_argument_combination()
+        self.object_from_json = JSONFile._get_from_json_function(from_json)
         StorageFile.__init__(self, folder, name, max_bytes = max_bytes)
+    
+    def _raise_exception_if_invalid_argument_combination(self):
+        if self.default is not None and self.cls is not None:
+            raise ValueError('JSONFile objects should not receive default and cls')
+
+    @staticmethod
+    def _get_from_json_function(from_json):
+        if hasattr(from_json, 'from_json') and callable(from_json.from_json):
+            return from_json.from_json
+        else:
+            return from_json
 
     def _convert_to_text(self) -> str:
-        if self.default is not None:
+        if self._encoder_function_provided():
             return json.dumps(self.value, default = self.default)
-        if self.cls is not None:
+        if self._encoder_class_provided():
             return json.dumps(self.value, cls = self.cls)
-        if hasattr(self.value, 'to_json') and callable(self.value.to_json):
+        if self._value_has_encoder_method():
             return json.dumps(self.value.to_json())
         return json.dumps(self.value)
+
+    def _encoder_function_provided(self):
+        return self.default is not None
+    def _encoder_class_provided(self):
+        return self.cls is not None
+    def _value_has_encoder_method(self):
+        return hasattr(self.value, 'to_json') and callable(self.value.to_json)
     
     def get_value_from_text(self, text: str):
         json_value = json.loads(text)
