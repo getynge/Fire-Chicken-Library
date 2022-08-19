@@ -143,6 +143,11 @@ class JSONFile(StorageFile):
             return json.dumps(self.value, default = self.default)
         if self.cls is not None:
             return json.dumps(self.value, cls = self.cls)
+        if hasattr(self.value, 'to_json') and callable(self.value.to_json):
+            if self.object_from_json is None and hasattr(self.value, 'from_json')\
+                and callable(self.value.from_json):
+                self.object_from_json = self.value.from_json
+            return json.dumps(self.value.to_json())
         return json.dumps(self.value)
     
     def get_value_from_text(self, text: str):
