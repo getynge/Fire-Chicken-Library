@@ -1,4 +1,5 @@
-from talon import Module, Context
+from talon import Module, Context, actions, app
+
 
 class SwitchTag:
     def __init__(self, name: str, description: str):
@@ -6,7 +7,12 @@ class SwitchTag:
         module.tag(name, description)
         self.name = name
         self.context = Context()
-        manager.insert(self)
+        app.register('ready', self._register)
+    def _register(self):
+        try:
+            actions.user.switch_tag_insert(self)
+        except Exception as exception:
+            print('Switch tag manager not available', exception)
     def on(self):
         self.context.tags = [self.get_name()]
     def activate(self):
@@ -25,30 +31,3 @@ class SwitchTag:
         return 'user.' + self.name
     def get_postfix(self) -> str:
         return self.name
-
-class TagNotFoundException(Exception):
-    pass
-
-class SwitchTagManager:
-    def __init__(self):
-        self.tags = {}
-    def insert(self, Tag: SwitchTag):
-        self.tags[Tag.get_postfix()] = Tag
-    def get(self, name: str) -> SwitchTag:
-        if name in self.tags:
-            return self.tags[name]
-        raise TagNotFoundException('Tag with name ' + name + ' not found within the switch tag manager!')
-manager = SwitchTagManager()
-
-module = Module()
-@module.action_class
-class Actions:
-    def switch_tag_on(name: str):
-        '''Activates the specified switch tag'''
-        manager.get(name).on()
-    def switch_tag_off(name: str):
-        '''Deactivates the specified switch tag'''
-        manager.get(name).off()
-    def switch_tag_switch(name: str):
-        '''Toggles the specified switch tag'''
-        manager.get(name).switch()
