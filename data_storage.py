@@ -3,7 +3,7 @@ import inspect
 
 from .mouse_position import MousePosition
 
-class DirectoryNotAbsolute(Exception):
+class DirectoryRelative(Exception):
     pass
 
 DEFAULT_MAX_BYTES = 50000000
@@ -13,7 +13,7 @@ class Storage:
         if _directory_is_absolute_path(dir):
             self.dir = dir
         else:
-            raise DirectoryNotAbsolute(dir)
+            raise DirectoryRelative(dir)
         _create_directory_if_nonexistent(self.dir)
         self.max_bytes = max_bytes
 
