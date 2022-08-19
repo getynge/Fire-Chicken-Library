@@ -31,8 +31,9 @@ class Storage:
     def boolean_file(self, name: str):
         return self.get_storage_file(BooleanFile, name)
 
-    def json_file(self, name: str):
-        return self.get_storage_file(JSONFile, name)
+    def json_file(self, name: str, *, default = None, cls = None, object_from_json = None, initial_value = None):
+        return JSONFile(self.get_path(), name, default = default, cls = cls, 
+        object_from_json = object_from_json, initial_value = initial_value)
 
     def get_storage_file(self, type, name: str):
         return type.create(self.get_path(), name, max_bytes = self.max_bytes)
@@ -128,13 +129,13 @@ class StorageFile:
 
 class JSONFile(StorageFile):
     def __init__(self, folder: str, name: str, *, max_bytes: int = DEFAULT_MAX_BYTES, initial_value = None, 
-        default = None, cls = None, construct_object_from_json_func = None):
+        default = None, cls = None, object_from_json = None):
         self.initial_value = initial_value
         self.default = default
         self.cls = cls
         if default is not None and cls is not None:
             raise ValueError('JSONFile objects should not receive default and cls')
-        self.construct_object_from_json_func = construct_object_from_json_func
+        self.object_from_json = object_from_json
         StorageFile.__init__(self, folder, name, max_bytes = max_bytes)
 
     def _convert_to_text(self) -> str:
@@ -146,9 +147,9 @@ class JSONFile(StorageFile):
     
     def get_value_from_text(self, text: str):
         json_value = json.loads(text)
-        if self.construct_object_from_json_func is None:
+        if self.object_from_json is None:
             return json_value
-        return self.construct_object_from_json_func(json_value)
+        return self.object_from_json(json_value)
     
     def _initial_value(self):
         return self.initial_value
