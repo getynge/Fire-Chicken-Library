@@ -139,20 +139,33 @@ class JSONFile(StorageFile):
     def __init__(self, folder: str, name: str, *, max_bytes: int = DEFAULT_MAX_BYTES, initial_value = None, 
         default = None, cls = None, from_json = None):
         self.initial_value = initial_value
+        self.converter = JSONConverter(from_json, default = default, cls = cls)
+        StorageFile.__init__(self, folder, name, max_bytes = max_bytes)
+
+    def _convert_to_text(self) -> str:
+        return self.converter.convert_to_text(self.value)
+  
+    def get_value_from_text(self, text: str):
+        self.converter.get_value_from_text(text)
+    
+    def _get_initial_value(self):
+        return self.initial_value
+
+class JSONConverter:
+    def __init__(self, from_json, *, default = None, cls = None):
         self.default = default
         self.cls = cls
         self._raise_exception_if_invalid_argument_combination()
-        self.object_from_json = JSONFile._get_from_json_function(from_json)
-        StorageFile.__init__(self, folder, name, max_bytes = max_bytes)
-    
+        self.object_from_json = self._get_from_json_function(from_json)
+
     def _raise_exception_if_invalid_argument_combination(self):
         if self.default is not None and self.cls is not None:
             raise ValueError('JSONFile objects should not receive default and cls')
 
     @staticmethod
     def _get_from_json_function(from_json):
-        if JSONFile._from_json_function_is_method(from_json):
-            return JSONFile._get_from_json_function_from_class(from_json)
+        if JSONConverter._from_json_function_is_method(from_json):
+            return JSONConverter._get_from_json_function_from_class(from_json)
         else:
             return from_json
     @staticmethod
@@ -162,39 +175,36 @@ class JSONFile(StorageFile):
     def _get_from_json_function_from_class(classname):
         return lambda value : classname.from_json(value)
 
-    def _convert_to_text(self) -> str:
+    def convert_to_text(self, value) -> str:
         if self._encoder_function_provided():
-            return self._encode_using_encoder_function()
+            return self._encode_using_encoder_function(value)
         if self._encoder_class_provided():
-            return self._encode_using_encoder_class()
-        if self._value_has_encoder_method():
-            return self._encode_using_encoder_method()
-        return self._encode_using_json_default_encoding()
+            return self._encode_using_encoder_class(value)
+        if self._value_has_encoder_method(value):
+            return self._encode_using_encoder_method(value)
+        return self._encode_using_json_default_encoding(value)
 
     def _encoder_function_provided(self):
         return self.default is not None
     def _encoder_class_provided(self):
         return self.cls is not None
-    def _value_has_encoder_method(self):
-        return hasattr(self.value, 'to_json') and callable(self.value.to_json)
+    def _value_has_encoder_method(self, value):
+        return hasattr(value, 'to_json') and callable(value.to_json)
     
-    def _encode_using_encoder_function(self):
-        return json.dumps(self.value, default = self.default)
-    def _encode_using_encoder_class(self):
-        return json.dumps(self.value, cls = self.cls)
-    def _encode_using_encoder_method(self):
-        return json.dumps(self.value.to_json())
-    def _encode_using_json_default_encoding(self):
-        return json.dumps(self.value)
+    def _encode_using_encoder_function(self, value):
+        return json.dumps(value, default = self.default)
+    def _encode_using_encoder_class(self, value):
+        return json.dumps(value, cls = self.cls)
+    def _encode_using_encoder_method(self, value):
+        return json.dumps(value.to_json())
+    def _encode_using_json_default_encoding(self, value):
+        return json.dumps(value)
 
-    def get_value_from_text(self, text: str):
+    def get_value_from_text(self, text):
         json_value = json.loads(text)
         if self.object_from_json is None:
             return json_value
         return self.object_from_json(json_value)
-    
-    def _get_initial_value(self):
-        return self.initial_value
 
 class InvalidFileSizeException(Exception):
     pass
