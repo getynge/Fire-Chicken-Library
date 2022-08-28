@@ -16,26 +16,26 @@ class Storage:
         _create_directory_if_nonexistent(self.dir)
         self.max_bytes = max_bytes
 
-    def position_file(self, name: str):
-        return self.storage_file(name, MousePositionFile) 
+    def get_position_file(self, name: str):
+        return self.get_storage_file(name, MousePositionFile) 
     
-    def integer_file(self, name: str):
-        return self.storage_file(name, IntegerFile)
+    def get_integer_file(self, name: str):
+        return self.get_storage_file(name, IntegerFile)
     
-    def float_file(self, name: str):
-        return self.storage_file(name, FloatFile)
+    def get_float_file(self, name: str):
+        return self.get_storage_file(name, FloatFile)
     
-    def string_file(self, name: str):
-        return self.storage_file(name, StringFile)
+    def get_string_file(self, name: str):
+        return self.get_storage_file(name, StringFile)
     
-    def boolean_file(self, name: str):
-        return self.storage_file(name, BooleanFile)
+    def get_boolean_file(self, name: str):
+        return self.get_storage_file(name, BooleanFile)
 
-    def json_file(self, name: str, from_json = None, *, default = None, cls = None, initial_value = None):
+    def get_json_file(self, name: str, from_json = None, *, default = None, cls = None, initial_value = None):
         return JSONFile(self.get_path(), name, from_json = from_json, default = default, cls = cls, 
         initial_value = initial_value)
 
-    def storage_file(self, name: str, type):
+    def get_storage_file(self, name: str, type):
         return type.create(self.get_path(), name, max_bytes = self.max_bytes)
 
     def get_path(self):
@@ -72,14 +72,14 @@ def _join_path(directory, path):
 #Implement Python string method for storing object for storage
     #or override _convert_to_text
 #Implement classmethod get_value_from_text for reading from the file
-#Implement _initial_value for setting the initial value
+#Implement _get_initial_value for setting the initial value
 class StorageFile:
     def __init__(self, folder: str, name: str, *, max_bytes: int = DEFAULT_MAX_BYTES):
         self.folder = folder
         self.name = name
         self.max_bytes = max_bytes
         self._initialize_file_if_nonexistent()
-        self._retrieve_value()
+        self._load_value_from_file()
     @classmethod
     def create(cls, folder: str, name: str, *, max_bytes: int = DEFAULT_MAX_BYTES):
         return cls(folder, name, max_bytes = max_bytes)
@@ -100,7 +100,7 @@ class StorageFile:
     def _convert_to_text(self) -> str:
         return str(self.value)
 
-    def _retrieve_value(self):
+    def _load_value_from_file(self):
         if self._file_too_big():
             self._raise_file_too_big_exception()
         with open(self.get_path(), 'r') as position_file:
@@ -126,7 +126,7 @@ class StorageFile:
         return not os.path.exists(self.get_path())
     def initialize(self):
         self._make_directory_if_nonexistent()
-        initial_value = self._initial_value()
+        initial_value = self._get_initial_value()
         self.set(initial_value)
     
     def _make_directory_if_nonexistent(self):
@@ -193,7 +193,7 @@ class JSONFile(StorageFile):
             return json_value
         return self.object_from_json(json_value)
     
-    def _initial_value(self):
+    def _get_initial_value(self):
         return self.initial_value
 
 class InvalidFileSizeException(Exception):
@@ -208,7 +208,7 @@ class MousePositionFile(StorageFile):
     def get_value_from_text(self, text: str):
         return MousePosition.from_text(text)
     
-    def _initial_value(self):
+    def _get_initial_value(self):
         return MousePosition(0, 0)
     
 class IntegerFile(StorageFile):
@@ -216,7 +216,7 @@ class IntegerFile(StorageFile):
     def get_value_from_text(self, text: str):
         return int(text)
     
-    def _initial_value(self):
+    def _get_initial_value(self):
         return 0
 
 class FloatFile(StorageFile):
@@ -224,7 +224,7 @@ class FloatFile(StorageFile):
     def get_value_from_text(self, text: str):
         return float(text)
     
-    def _initial_value(self):
+    def _get_initial_value(self):
         return 0.0
     
 class StringFile(StorageFile):
@@ -232,7 +232,7 @@ class StringFile(StorageFile):
     def get_value_from_text(self, text: str):
         return text
     
-    def _initial_value(self):
+    def _get_initial_value(self):
         return ''
 
 class BooleanFile(StorageFile):
@@ -240,7 +240,7 @@ class BooleanFile(StorageFile):
     def get_value_from_text(self, text: str):
         return bool(text)
     
-    def _initial_value(self):
+    def _get_initial_value(self):
         return False
 
     
