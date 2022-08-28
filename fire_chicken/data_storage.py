@@ -2,7 +2,7 @@ import os, json
 
 from .mouse_position import MousePosition
 
-class DirectoryRelative(Exception):
+class DirectoryRelativeException(Exception):
     pass
 
 DEFAULT_MAX_BYTES = 50000000
@@ -12,7 +12,7 @@ class Storage:
         if _directory_is_absolute_path(dir):
             self.dir = dir
         else:
-            raise DirectoryRelative(dir)
+            raise DirectoryRelativeException(dir)
         _create_directory_if_nonexistent(self.dir)
         self.max_bytes = max_bytes
 
