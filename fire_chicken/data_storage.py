@@ -1,5 +1,4 @@
 import os, json
-import inspect
 
 from .mouse_position import MousePosition
 
