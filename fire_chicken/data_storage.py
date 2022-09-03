@@ -155,7 +155,7 @@ class JSONConverter:
     def __init__(self, from_json, *, to_json_function = None, to_json_class = None):
         self.json_from_object_converter = JSONFromObjectConverter(to_json_function = to_json_function, to_json_class = to_json_class)
         self.object_from_json = self._get_from_json_function(from_json)
-        
+
     def convert_object_to_json(self, value):
         return self.json_from_object_converter.convert_object(value)
     @staticmethod
@@ -185,27 +185,15 @@ class JSONFromObjectConverter:
     @staticmethod
     def _get_json_from_object_function(to_json_function, to_json_class):
         JSONFromObjectConverter._raise_exception_if_invalid_json_from_object_argument_combination(to_json_function, to_json_class)
-        if JSONFromObjectConverter._value_provided(to_json_function):
+        if _value_provided(to_json_function):
             return JSONFromObjectConverter._get_json_from_object_function_using_converter_function(to_json_function)
-        if JSONFromObjectConverter._value_provided(to_json_class):
+        if _value_provided(to_json_class):
             return JSONFromObjectConverter._get_json_from_object_function_using_converter_class(to_json_class)
         return None
     @staticmethod
     def _raise_exception_if_invalid_json_from_object_argument_combination(to_json_function, to_json_class):
-        if JSONFromObjectConverter._values_provided(to_json_function, to_json_class):
+        if _values_provided(to_json_function, to_json_class):
             raise ValueError('JSONFile objects should not receive default and cls')
-    @staticmethod
-    def _value_provided(value):
-        return value is not None
-    @staticmethod
-    def _values_provided(*args):
-        for value in args:
-            if JSONFromObjectConverter._value_unavailable(value):
-                return False
-        return True
-    @staticmethod
-    def _value_unavailable(value):
-        return value is None
     @staticmethod
     def _get_json_from_object_function_using_converter_function(function):
         return lambda value : json.dumps(value, default = function)
@@ -228,6 +216,16 @@ class JSONFromObjectConverter:
     def _encode_using_json_default_encoding(self, value):
         return json.dumps(value)
 
+def _value_provided(value):
+    return value is not None
+def _values_provided(*args):
+    for value in args:
+        if _value_unavailable(value):
+            return False
+    return True
+def _value_unavailable(value):
+    return value is None
+    
 class InvalidFileSizeException(Exception):
     pass
 
