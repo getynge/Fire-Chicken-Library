@@ -158,6 +158,7 @@ class JSONConverter:
 
     def convert_object_to_json(self, value):
         return self.json_from_object_converter.convert_object(value)
+        
     @staticmethod
     def _get_from_json_function(from_json):
         if JSONConverter._from_json_function_is_method(from_json):
