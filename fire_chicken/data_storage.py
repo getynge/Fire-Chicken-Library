@@ -8,12 +8,12 @@ class DirectoryRelativeException(Exception):
 DEFAULT_MAX_BYTES = 50000000
 class Storage:
     #Half a gigabyte
-    def __init__(self, dir, *, max_bytes = DEFAULT_MAX_BYTES):
-        if _directory_is_absolute_path(dir):
-            self.dir = dir
+    def __init__(self, directory, *, max_bytes = DEFAULT_MAX_BYTES):
+        if _directory_is_absolute_path(directory):
+            self.directory = directory
         else:
-            raise DirectoryRelativeException(dir)
-        _create_directory_if_nonexistent(self.dir)
+            raise DirectoryRelativeException(directory)
+        _create_directory_if_nonexistent(self.directory)
         self.max_bytes = max_bytes
 
     def get_position_file(self, name: str):
@@ -39,7 +39,7 @@ class Storage:
         return type.create(self.get_path(), name, max_bytes = self.max_bytes)
 
     def get_path(self):
-        return self.dir
+        return self.directory
 
 def _create_directory_if_nonexistent(directory):
     if not os.path.exists(directory):
@@ -74,15 +74,15 @@ def _join_path(directory, path):
 #Implement classmethod get_value_from_text for reading from the file
 #Implement _get_initial_value for setting the initial value
 class StorageFile:
-    def __init__(self, folder: str, name: str, *, max_bytes: int = DEFAULT_MAX_BYTES):
-        self.folder = folder
+    def __init__(self, directory: str, name: str, *, max_bytes: int = DEFAULT_MAX_BYTES):
+        self.directory = directory
         self.name = name
         self.max_bytes = max_bytes
         self._initialize_file_if_nonexistent()
         self._load_value_from_file()
     @classmethod
-    def create(cls, folder: str, name: str, *, max_bytes: int = DEFAULT_MAX_BYTES):
-        return cls(folder, name, max_bytes = max_bytes)
+    def create(cls, directory: str, name: str, *, max_bytes: int = DEFAULT_MAX_BYTES):
+        return cls(directory, name, max_bytes = max_bytes)
 
 
     def get(self):
@@ -117,7 +117,7 @@ class StorageFile:
         )
 
     def get_path(self):
-        return os.path.join(self.folder, self.name)
+        return os.path.join(self.directory, self.name)
 
     def _initialize_file_if_nonexistent(self):
         if self.exists():
@@ -130,7 +130,7 @@ class StorageFile:
         self.set(initial_value)
     
     def _make_directory_if_nonexistent(self):
-        _create_directory_if_nonexistent(self.folder)
+        _create_directory_if_nonexistent(self.directory)
     
     def delete(self):
         os.remove(self.get_path())
