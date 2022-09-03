@@ -164,7 +164,7 @@ class JSONConverter:
 
 class ObjectFromJSONConverter:
     def __init__(self, object_from_json):
-        self.object_from_json = ObjectFromJSONConverter._get_from_json_function(object_from_json)
+        self.object_from_json = self._get_from_json_function(object_from_json)
     @staticmethod
     def _get_from_json_function(from_json):
         if ObjectFromJSONConverter._from_json_function_is_method(from_json):
@@ -186,7 +186,7 @@ class ObjectFromJSONConverter:
 
 class JSONFromObjectConverter:
     def __init__(self, *, to_json_function, to_json_class):
-        self.json_from_object = JSONFromObjectConverter._get_json_from_object_function(to_json_function, to_json_class)
+        self.json_from_object = self._get_json_from_object_function(to_json_function, to_json_class)
 
     @staticmethod
     def _get_json_from_object_function(to_json_function, to_json_class):
