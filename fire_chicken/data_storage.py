@@ -139,7 +139,7 @@ class JSONFile(StorageFile):
     def __init__(self, folder: str, name: str, *, max_bytes: int = DEFAULT_MAX_BYTES, initial_value = None, 
         default = None, cls = None, from_json = None):
         self.initial_value = initial_value
-        self.converter = JSONConverter(from_json, default = default, cls = cls)
+        self.converter = JSONConverter(from_json, to_json_function = default, to_json_class = cls)
         StorageFile.__init__(self, folder, name, max_bytes = max_bytes)
 
     def _convert_to_text(self) -> str:
@@ -152,22 +152,40 @@ class JSONFile(StorageFile):
         return self.initial_value
 
 class JSONConverter:
-    def __init__(self, from_json, *, default = None, cls = None):
-        self.json_from_object = self._get_json_from_object_function(default, cls)
+    def __init__(self, from_json, *, to_json_function = None, to_json_class = None):
+        self.json_from_object = self._get_json_from_object_function(to_json_function, to_json_class)
         self.object_from_json = self._get_from_json_function(from_json)
 
     @staticmethod
-    def _get_json_from_object_function(default, cls):
-        JSONConverter._raise_exception_if_invalid_json_from_object_argument_combination(default, cls)
-        if default is not None:
-            return lambda value : json.dumps(value, default = default)
-        if cls is not None:
-            return lambda value : json.dumps(value, cls = cls)
+    def _get_json_from_object_function(to_json_function, to_json_class):
+        JSONConverter._raise_exception_if_invalid_json_from_object_argument_combination(to_json_function, to_json_class)
+        if JSONConverter._value_provided(to_json_function):
+            return JSONConverter._get_json_from_object_function_using_converter_function(to_json_function)
+        if JSONConverter._value_provided(to_json_class):
+            return JSONConverter._get_json_from_object_function_using_converter_class(to_json_class)
         return None
     @staticmethod
-    def _raise_exception_if_invalid_json_from_object_argument_combination(default, cls):
-        if default is not None and cls is not None:
+    def _raise_exception_if_invalid_json_from_object_argument_combination(to_json_function, to_json_class):
+        if JSONConverter._values_provided(to_json_function, to_json_class):
             raise ValueError('JSONFile objects should not receive default and cls')
+    @staticmethod
+    def _value_provided(value):
+        return value is not None
+    @staticmethod
+    def _values_provided(*args):
+        for value in args:
+            if JSONConverter._value_unavailable(value):
+                return False
+        return True
+    @staticmethod
+    def _value_unavailable(value):
+        return value is None
+    @staticmethod
+    def _get_json_from_object_function_using_converter_function(function):
+        return lambda value : json.dumps(value, default = function)
+    @staticmethod
+    def _get_json_from_object_function_using_converter_class(converter_class):
+        return lambda value : json.dumps(value, cls = converter_class)
 
     @staticmethod
     def _get_from_json_function(from_json):
