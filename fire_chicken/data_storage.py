@@ -143,10 +143,10 @@ class JSONFile(StorageFile):
         StorageFile.__init__(self, folder, name, max_bytes = max_bytes)
 
     def _convert_to_text(self) -> str:
-        return self.converter.convert_to_text(self.value)
+        return self.converter.convert_object_to_json(self.value)
   
     def get_value_from_text(self, text: str):
-        self.converter.get_value_from_text(text)
+        self.converter.convert_json_to_object(text)
     
     def _get_initial_value(self):
         return self.initial_value
@@ -182,7 +182,7 @@ class JSONConverter:
     def _get_from_json_function_from_class(classname):
         return lambda value : classname.from_json(value)
 
-    def convert_to_text(self, value) -> str:
+    def convert_object_to_json(self, value) -> str:
         if self.json_from_object is not None:
             return self.json_from_object(value)
         if self._value_has_encoder_method(value):
@@ -197,7 +197,7 @@ class JSONConverter:
     def _encode_using_json_default_encoding(self, value):
         return json.dumps(value)
 
-    def get_value_from_text(self, text):
+    def convert_json_to_object(self, text):
         json_value = json.loads(text)
         if self.object_from_json is None:
             return json_value
