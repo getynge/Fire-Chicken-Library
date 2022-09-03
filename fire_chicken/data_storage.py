@@ -172,17 +172,27 @@ class ObjectFromJSONConverter:
         else:
             return from_json
     @staticmethod
-    def _from_json_function_is_method(from_json):
-        return hasattr(from_json, 'from_json') and callable(from_json.from_json)
-    @staticmethod
     def _get_from_json_function_from_class(classname):
         return lambda value : classname.from_json(value)
+    @staticmethod
+    def _from_json_function_is_method(from_json):
+        return ObjectFromJSONConverter._has_from_json_attribute(from_json) \
+           and ObjectFromJSONConverter._has_callable_from_json_attribute(from_json)
+    @staticmethod
+    def _has_from_json_attribute(from_json):
+        return hasattr(from_json, 'from_json')
+    @staticmethod
+    def _has_callable_from_json_attribute(from_json):
+        return callable(from_json.from_json)
 
     def convert_json(self, text):
-        json_value = json.loads(text)
+        json_value = self._convert_json_using_default_decoding(text)
         if _value_unavailable(self.object_from_json):
             return json_value
         return self.object_from_json(json_value)
+    @staticmethod
+    def _convert_json_using_default_decoding(text):
+        return json.loads(text)
 
 class JSONFromObjectConverter:
     def __init__(self, *, to_json_function, to_json_class):
