@@ -218,17 +218,24 @@ class JSONFromObjectConverter:
         return lambda value : json.dumps(value, cls = converter_class)
 
     def convert_object(self, value) -> str:
-        if self.json_from_object is not None:
+        if _value_provided(self.json_from_object):
             return self.json_from_object(value)
         if self._value_has_encoder_method(value):
             return self._encode_using_encoder_method(value)
         return self._encode_using_json_default_encoding(value)
     @staticmethod
     def _value_has_encoder_method(value):
-        return hasattr(value, 'to_json') and callable(value.to_json)
+        return JSONFromObjectConverter._value_has_to_json_attribute(value) \
+           and JSONFromObjectConverter._value_has_callable_to_json_attribute(value)
+    @staticmethod
+    def _value_has_to_json_attribute(value):
+        return hasattr(value, 'to_json')
+    def _value_has_callable_to_json_attribute(value):
+        return callable(value.to_json)
     @staticmethod
     def _encode_using_encoder_method(value):
-        return JSONFromObjectConverter._encode_using_json_default_encoding(value.to_json())
+        json_object = value.to_json()
+        return JSONFromObjectConverter._encode_using_json_default_encoding(json_object)
     @staticmethod
     def _encode_using_json_default_encoding(value):
         return json.dumps(value)
