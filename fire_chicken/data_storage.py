@@ -153,13 +153,20 @@ class JSONFile(StorageFile):
 
 class JSONConverter:
     def __init__(self, from_json, *, default = None, cls = None):
-        self.default = default
-        self.cls = cls
-        self._raise_exception_if_invalid_argument_combination()
+        self.json_from_object = self._get_json_from_object_function(default, cls)
         self.object_from_json = self._get_from_json_function(from_json)
 
-    def _raise_exception_if_invalid_argument_combination(self):
-        if self.default is not None and self.cls is not None:
+    @staticmethod
+    def _get_json_from_object_function(default, cls):
+        JSONConverter._raise_exception_if_invalid_json_from_object_argument_combination(default, cls)
+        if default is not None:
+            return lambda value : json.dumps(value, default = default)
+        if cls is not None:
+            return lambda value : json.dumps(value, cls = cls)
+        return None
+    @staticmethod
+    def _raise_exception_if_invalid_json_from_object_argument_combination(default, cls):
+        if default is not None and cls is not None:
             raise ValueError('JSONFile objects should not receive default and cls')
 
     @staticmethod
@@ -176,25 +183,15 @@ class JSONConverter:
         return lambda value : classname.from_json(value)
 
     def convert_to_text(self, value) -> str:
-        if self._encoder_function_provided():
-            return self._encode_using_encoder_function(value)
-        if self._encoder_class_provided():
-            return self._encode_using_encoder_class(value)
+        if self.json_from_object is not None:
+            return self.json_from_object(value)
         if self._value_has_encoder_method(value):
             return self._encode_using_encoder_method(value)
         return self._encode_using_json_default_encoding(value)
 
-    def _encoder_function_provided(self):
-        return self.default is not None
-    def _encoder_class_provided(self):
-        return self.cls is not None
     def _value_has_encoder_method(self, value):
         return hasattr(value, 'to_json') and callable(value.to_json)
     
-    def _encode_using_encoder_function(self, value):
-        return json.dumps(value, default = self.default)
-    def _encode_using_encoder_class(self, value):
-        return json.dumps(value, cls = self.cls)
     def _encode_using_encoder_method(self, value):
         return json.dumps(value.to_json())
     def _encode_using_json_default_encoding(self, value):
