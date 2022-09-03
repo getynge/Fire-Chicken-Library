@@ -154,15 +154,21 @@ class JSONFile(StorageFile):
 class JSONConverter:
     def __init__(self, from_json, *, to_json_function = None, to_json_class = None):
         self.json_from_object_converter = JSONFromObjectConverter(to_json_function = to_json_function, to_json_class = to_json_class)
-        self.object_from_json = self._get_from_json_function(from_json)
+        self.object_from_json_converter = ObjectFromJSONConverter(from_json)
 
     def convert_object_to_json(self, value):
         return self.json_from_object_converter.convert_object(value)
-        
+
+    def convert_json_to_object(self, text):
+        self.object_from_json_converter.convert_json(text)
+
+class ObjectFromJSONConverter:
+    def __init__(self, object_from_json):
+        self.object_from_json = ObjectFromJSONConverter._get_from_json_function(object_from_json)
     @staticmethod
     def _get_from_json_function(from_json):
-        if JSONConverter._from_json_function_is_method(from_json):
-            return JSONConverter._get_from_json_function_from_class(from_json)
+        if ObjectFromJSONConverter._from_json_function_is_method(from_json):
+            return ObjectFromJSONConverter._get_from_json_function_from_class(from_json)
         else:
             return from_json
     @staticmethod
@@ -172,12 +178,11 @@ class JSONConverter:
     def _get_from_json_function_from_class(classname):
         return lambda value : classname.from_json(value)
 
-    def convert_json_to_object(self, text):
+    def convert_json(self, text):
         json_value = json.loads(text)
-        if self.object_from_json is None:
+        if _value_unavailable(self.object_from_json):
             return json_value
         return self.object_from_json(json_value)
-    
 
 class JSONFromObjectConverter:
     def __init__(self, *, to_json_function, to_json_class):
