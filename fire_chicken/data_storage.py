@@ -218,7 +218,7 @@ class JSONFromObjectConverter:
         return hasattr(value, 'to_json') and callable(value.to_json)
     
     def _encode_using_encoder_method(self, value):
-        return json.dumps(value.to_json())
+        return self._encode_using_json_default_encoding(value.to_json())
     def _encode_using_json_default_encoding(self, value):
         return json.dumps(value)
 
