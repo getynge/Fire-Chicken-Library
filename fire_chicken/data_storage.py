@@ -213,13 +213,14 @@ class JSONFromObjectConverter:
         if self._value_has_encoder_method(value):
             return self._encode_using_encoder_method(value)
         return self._encode_using_json_default_encoding(value)
-
-    def _value_has_encoder_method(self, value):
+    @staticmethod
+    def _value_has_encoder_method(value):
         return hasattr(value, 'to_json') and callable(value.to_json)
-    
-    def _encode_using_encoder_method(self, value):
-        return self._encode_using_json_default_encoding(value.to_json())
-    def _encode_using_json_default_encoding(self, value):
+    @staticmethod
+    def _encode_using_encoder_method(value):
+        return JSONFromObjectConverter._encode_using_json_default_encoding(value.to_json())
+    @staticmethod
+    def _encode_using_json_default_encoding(value):
         return json.dumps(value)
 
 def _value_provided(value):
