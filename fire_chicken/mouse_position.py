@@ -1,3 +1,4 @@
+import math
 from talon import ctrl, actions
 
 class MousePosition:
@@ -56,3 +57,10 @@ class MousePosition:
         current_mouse_position = MousePosition(horizontal, vertical)
         return current_mouse_position
     
+    def __eq__(self, other):
+        return self.horizontal == other.horizontal and self.vertical == other.vertical
+
+    def distance_from(self, other):
+        return math.sqrt((self.horizontal - other.horizontal)**2 + (self.vertical - other.vertical)**2)
+
+
