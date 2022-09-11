@@ -1,3 +1,7 @@
+from dataclasses import dataclass
+from enum import Enum
+
+
 class TestSuite:
     def __init__(self):
         self.test_cases = []
@@ -6,14 +10,17 @@ class TestSuite:
         self.test_cases.append(test_case)
     
     def run_tests(self):
-        print(self.test_cases)
+        failed_test_results = []
         for test_case in self.test_cases:            
-            test_case._private_private_test_methods()
+            failed_test_results.extend(test_case._private_private_test_methods())
+        _output_test_results(failed_test_results)
 
-class RunOnLoadTestSuite(TestSuite):
-    def __init__(self):
-        self.super().__init__()
-        self.run_tests()
+def _output_test_results(results):
+    for result in results:
+        if result.failure_type == FailureType.ACTUAL_NOT_EXPECTED:
+            _output_failed_test_result_with_name(result.exception, result.test_name)
+        elif result.failure_type == FailureType.CRASH:
+            _output_crashed_test_exception_with_name(result.exception, result.test_name)
 
 def _output_failed_test_result_with_name(exception: Exception, test_name: str):
     print(f'The following test failed: {test_name}.')
@@ -39,22 +46,34 @@ class TestCase:
     @classmethod
     def _private_private_test_methods(cls):
         instantiation = cls()
+        failed_test_results = []
         methods = cls._private_private_get_methods_to_test_names()
         for method in methods:
-            instantiation._private_private_test_method(method)
-        
+            test_result = instantiation._private_private_test_method(method)
+            if test_result is not None:
+                failed_test_results.append(test_result)
+        return failed_test_results
     
     def _private_private_test_method(self, method_name: str):
         try:
             self._private_private_run_method(method_name)
         except ProperTestFailureException as exception:
-            _output_failed_test_result_with_name(exception, method_name)
+            return FailedTestResult(exception, method_name, FailureType.ACTUAL_NOT_EXPECTED)
         except Exception as exception:
-            _output_crashed_test_exception_with_name(exception, method_name)
+            return FailedTestResult(exception, method_name, FailureType.CRASH)
 
     def _private_private_run_method(self, method_name: str):
         method = getattr(self, method_name)
         method()
+
+FailureType = Enum('FailureType', 'ACTUAL_NOT_EXPECTED CRASH')
+
+@dataclass
+class FailedTestResult:
+    exception: Exception
+    test_name: str
+    failure_type: FailureType
+
 
 class ProperTestFailureException(Exception):
     def __init__(self, exception):
