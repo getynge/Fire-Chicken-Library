@@ -75,15 +75,6 @@ class FailedTestResult:
     failure_type: FailureType
 
 
-class ProperTestFailureException(Exception):
-    def __init__(self, exception):
-        super().__init__(exception)
-
-class TestActualNotExpectedException(ProperTestFailureException):
-    def __init__(self, actual, expected):
-        message = f'Result:\nExpected:\n{expected}\nActual:\n{actual}'
-        super().__init__(Exception(message))
-
 def assert_false(condition):
     assert_actual_equals_expected(condition, False)
 
@@ -101,5 +92,15 @@ def assert_function_fails_with_exception_given_arguments(function, exception, *a
     except exception as expected_exception:
         pass
         
+
+class ProperTestFailureException(Exception):
+    def __init__(self, exception):
+        super().__init__(exception)
+
+class TestActualNotExpectedException(ProperTestFailureException):
+    def __init__(self, actual, expected):
+        message = f'Result:\nExpected:\n{expected}\nActual:\n{actual}'
+        super().__init__(Exception(message))
+
 class TestDidNotRaiseExpectedExceptionException(ProperTestFailureException):
     pass
