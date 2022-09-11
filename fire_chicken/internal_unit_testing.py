@@ -49,11 +49,18 @@ class TestCase:
         failed_test_results = []
         methods = cls._private_private_get_methods_to_test_names()
         for method in methods:
-            test_result = instantiation._private_private_test_method(method)
-            if test_result is not None:
-                failed_test_results.append(test_result)
+                instantiation._private_private_add_method_test_result_to_list(method, failed_test_results)
         return failed_test_results
     
+    
+    def _private_private_add_method_test_result_to_list(self, method, list):
+            test_result = self._private_private_test_method(method)
+            if self._private_private_should_add_test_result(test_result):
+                list.append(test_result)
+
+    def _private_private_should_add_test_result(self, result):
+        return result is not None
+
     def _private_private_test_method(self, method_name: str):
         try:
             self._private_private_run_method(method_name)
