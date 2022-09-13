@@ -76,8 +76,9 @@ class TestCase:
 class SetupTestCase(TestCase):
     def _private_private_test_method(self, method_name: str):
         self._setup()
-        self.super()._private_private_test_method(method_name)
+        test_result = super()._private_private_test_method(method_name)
         self._teardown()
+        return test_result
 
     def _setup(self):
         pass
