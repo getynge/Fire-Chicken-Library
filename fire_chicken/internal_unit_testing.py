@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-
+from talon import actions
 
 class TestSuite:
     def __init__(self):
@@ -124,3 +124,19 @@ class TestActualNotExpectedException(ProperTestFailureException):
 
 class TestDidNotRaiseExpectedExceptionException(ProperTestFailureException):
     pass
+
+class DraftTextTestCase(SetupTestCase):
+    def _setup(self):
+        # open draft window and delete all text
+        actions.user.draft_show("")
+
+    
+    def _teardown(self):
+        # delete all text from draft window and hide it
+        actions.user.draft_show("")
+        actions.user.draft_hide()
+
+
+def assert_draft_window_test_equals(expected: str):
+    actual = actions.user.draft_get_text()
+    assert_actual_equals_expected(actual,expected)
