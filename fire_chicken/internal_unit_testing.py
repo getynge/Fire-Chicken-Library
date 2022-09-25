@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from talon import actions
+from .knausj_boundary import *
 
 class TestSuite:
     def __init__(self):
@@ -89,13 +89,12 @@ class SetupTestCase(TestCase):
 class DraftTextTestCase(SetupTestCase):
     def _setup(self):
         # open draft window and delete all text
-        actions.user.draft_show("")
+        open_empty_draft_window()
 
     
     def _teardown(self):
         # delete all text from draft window and hide it
-        actions.user.draft_show("")
-        actions.user.draft_hide()
+        discard_draft_window_draft()
 
 FailureType = Enum('FailureType', 'ACTUAL_NOT_EXPECTED CRASH')
 
@@ -127,9 +126,9 @@ def assert_draft_window_test_equals(expected: str):
     previous_draft_text = ''
     current_draft_text = None
     while current_draft_text != previous_draft_text :
-        previous_draft_text = actions.user.draft_get_text()
+        previous_draft_text = get_draft_window_text()
         actions.sleep('500ms')
-        current_draft_text = actions.user.draft_get_text()
+        current_draft_text = get_draft_window_text()
     actual = current_draft_text
     assert_actual_equals_expected(actual, expected)
 
