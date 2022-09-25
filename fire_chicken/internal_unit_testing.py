@@ -124,7 +124,13 @@ def assert_function_fails_with_exception_given_arguments(function, exception, *a
         pass        
 
 def assert_draft_window_test_equals(expected: str):
-    actual = actions.user.draft_get_text()
+    previous_draft_text = ''
+    current_draft_text = None
+    while current_draft_text != previous_draft_text :
+        previous_draft_text = actions.user.draft_get_text()
+        actions.sleep('500ms')
+        current_draft_text = actions.user.draft_get_text()
+    actual = current_draft_text
     assert_actual_equals_expected(actual, expected)
 
 class ProperTestFailureException(Exception):
