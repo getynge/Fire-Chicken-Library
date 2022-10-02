@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from enum import Enum
 from .knausj_boundary import *
-from .path_tools.path_utilities import *
+from .path_utilities import *
 
 class TestSuite:
-    def __init__(self,name):
+    def __init__(self, name):
         self.test_cases = []
         self.name = name
 
@@ -33,7 +33,7 @@ def _output_test_results(name, results):
         for result in results:
             if result.failure_type == FailureType.ACTUAL_NOT_EXPECTED:
                 test_result_file.write("\n\n")
-                test_result_file.write(_output_failed_test_result_with_name(result.exception, result.test_name))
+                test_result_file.write(_output_failed_test_result_with_name(str(result.exception), result.test_name))
             elif result.failure_type == FailureType.CRASH:
                 test_result_file.write("\n\n")
                 test_result_file.write(_output_crashed_test_exception_with_name(result.exception, result.test_name))
