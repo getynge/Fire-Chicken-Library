@@ -40,22 +40,26 @@ def _get_data_directory():
 
 def _output_test_results_to_file(results, output_file):
     with open(output_file, 'w') as test_result_file:
-        test_result_file.write(str(len(results)) + " tests failed")
+        test_result_file.write(f"{len(results)} tests failed")
         for result in results:
-            if result.failure_type == FailureType.ACTUAL_NOT_EXPECTED:
-                test_result_file.write("\n\n")
-                test_result_file.write(_output_failed_test_result_with_name(str(result.exception), result.test_name))
-            elif result.failure_type == FailureType.CRASH:
-                test_result_file.write("\n\n")
-                test_result_file.write(_output_crashed_test_exception_with_name(result.exception, result.test_name))
+            test_result_file.write("\n\n")
+            if _test_failed_normally(result):
+                test_result_file.write(_compute_failed_test_result_output(result.exception, result.test_name))
+            elif _test_crashed_unexpectedly(result):
+                test_result_file.write(_compute_crashed_test_result_output(result.exception, result.test_name))
 
-def _output_failed_test_result_with_name(exception: Exception, test_name: str):
-    # write output to file test_name in output_directory)
-    return f'The following test failed: {test_name}.' + "\n" + exception
+def _compute_failed_test_result_output(exception: Exception, test_name: str):
+    return f'The following test failed: {test_name}.\n{exception}'
 
-def _output_crashed_test_exception_with_name(exception: Exception, test_name: str):
-    # write output to file test_name in output_directory)
-    return f'The following test crashed: {test_name}' + "\n" + f'It gave the following crash error: {exception}'
+def _compute_crashed_test_result_output(exception: Exception, test_name: str):
+    return f'The following test crashed: {test_name}.\nIt gave the following crash error: {exception}'
+
+def _test_failed_normally(test_result):
+    return test_result.failure_type == FailureType.ACTUAL_NOT_EXPECTED
+
+def _test_crashed_unexpectedly(test_result):
+    return test_result.failure_type == FailureType.CRASH
+
 
 class TestCase:
     @classmethod
