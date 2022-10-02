@@ -18,16 +18,27 @@ class TestSuite:
         _output_test_results(self.name,failed_test_results)
 
 def _output_test_results(name, results):
-    # get directory of this python file
-    python_file_directory = compute_file_directory(__file__)
-    # create data directory if doesn't exist
-    data_directory = join_path(python_file_directory, "data")
+    output_directory = _prepare_output_directory()
+    output_file = _compute_output_filepath_in_directory_with_filename(output_directory, name)
+    _output_test_results_to_file(results, output_file)
+
+def _compute_output_filepath_in_directory_with_filename(directory, test_name):
+    output_filepath = join_path(directory, test_name + ".txt")
+    return output_filepath
+
+def _prepare_output_directory():
+    data_directory = _get_data_directory()
     create_directory_if_nonexistent(data_directory)
     test_output_directory = join_path(data_directory, "test_output")
-    # create test_output directory if doesn't exist
     create_directory_if_nonexistent(test_output_directory)
-    output_file = join_path(test_output_directory, name + ".txt")
+    return test_output_directory
 
+def _get_data_directory():
+    python_file_directory = compute_file_directory(__file__)
+    data_directorydata_directory = join_path(python_file_directory, "data")
+    return data_directorydata_directory
+
+def _output_test_results_to_file(results, output_file):
     with open(output_file, 'w') as test_result_file:
         test_result_file.write(str(len(results)) + " tests failed")
         for result in results:
