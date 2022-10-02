@@ -91,24 +91,24 @@ class TestCase:
 
 class SetupTestCase(TestCase):
     def _private_private_test_method(self, method_name: str):
-        self._setup()
+        self._before_each()
         test_result = super()._private_private_test_method(method_name)
-        self._teardown()
+        self._after_each()
         return test_result
 
-    def _setup(self):
+    def _before_each(self):
         pass
 
-    def _teardown(self):
+    def _after_each(self):
         pass
         
 class DraftTextTestCase(SetupTestCase):
-    def _setup(self):
+    def _before_each(self):
         # open draft window and delete all text
         open_empty_draft_window()
 
     
-    def _teardown(self):
+    def _after_each(self):
         # delete all text from draft window and hide it
         discard_draft_window_draft()
 
