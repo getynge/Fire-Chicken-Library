@@ -2,6 +2,8 @@ import os, json
 
 from .mouse_position import MousePosition
 
+from .path_utilities import create_directory_if_nonexistent, is_absolute_path, join_path, compute_directory_at_path, compute_file_directory
+
 class DirectoryRelativeException(Exception):
     pass
 
@@ -9,11 +11,11 @@ DEFAULT_MAX_BYTES = 50000000
 class Storage:
     #Half a gigabyte
     def __init__(self, directory, *, max_bytes = DEFAULT_MAX_BYTES):
-        if _directory_is_absolute_path(directory):
+        if is_absolute_path(directory):
             self.directory = directory
         else:
             raise DirectoryRelativeException(directory)
-        _create_directory_if_nonexistent(self.directory)
+        create_directory_if_nonexistent(self.directory)
         self.max_bytes = max_bytes
 
     def get_position_file(self, name: str):
@@ -41,32 +43,13 @@ class Storage:
     def get_path(self):
         return self.directory
 
-def _create_directory_if_nonexistent(directory):
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
-def _directory_is_absolute_path(path):
-    return os.path.isabs(path)
 
 class RelativeStorage(Storage):
     def __init__(self, path, name = 'Fire Chicken Storage', *, max_bytes = DEFAULT_MAX_BYTES):
-        target_directory = _compute_directory_at_path(path)
-        dir = _join_path(target_directory, name)
+        target_directory = compute_directory_at_path(path)
+        dir = join_path(target_directory, name)
         Storage.__init__(self, dir, max_bytes = max_bytes)
 
-def _compute_directory_at_path(path):
-    if os.path.isdir(path):
-        return path
-    else:
-        return _compute_file_directory(path)
-
-def _compute_file_directory(path):
-    absolute_filepath = os.path.abspath(path)
-    file_directory = os.path.dirname(absolute_filepath)
-    return file_directory
-
-def _join_path(directory, path):
-    return os.path.join(directory, path)
 
 #Parent class not meant to be instantiated
 #Implement Python string method for storing object for storage
@@ -130,7 +113,7 @@ class StorageFile:
         self.set(initial_value)
     
     def _make_directory_if_nonexistent(self):
-        _create_directory_if_nonexistent(self.directory)
+        create_directory_if_nonexistent(self.directory)
     
     def delete(self):
         os.remove(self.get_path())
@@ -298,6 +281,3 @@ class BooleanFile(StorageFile):
     def _get_initial_value(self):
         return False
 
-    
-
-    
