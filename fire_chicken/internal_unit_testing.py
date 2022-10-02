@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 from enum import Enum
 from .knausj_boundary import *
+from .path_utilities import *
 
 class TestSuite:
-    def __init__(self):
+    def __init__(self, name):
         self.test_cases = []
+        self.name = name
 
     def insert(self, test_case):
         self.test_cases.append(test_case)
@@ -13,22 +15,36 @@ class TestSuite:
         failed_test_results = []
         for test_case in self.test_cases:            
             failed_test_results.extend(test_case._private_private_test_methods())
-        _output_test_results(failed_test_results)
+        _output_test_results(self.name,failed_test_results)
 
-def _output_test_results(results):
-    for result in results:
-        if result.failure_type == FailureType.ACTUAL_NOT_EXPECTED:
-            _output_failed_test_result_with_name(result.exception, result.test_name)
-        elif result.failure_type == FailureType.CRASH:
-            _output_crashed_test_exception_with_name(result.exception, result.test_name)
+def _output_test_results(name, results):
+    # get directory of this python file
+    python_file_directory = compute_file_directory(__file__)
+    # create data directory if doesn't exist
+    data_directory = join_path(python_file_directory, "data")
+    create_directory_if_nonexistent(data_directory)
+    test_output_directory = join_path(data_directory, "test_output")
+    # create test_output directory if doesn't exist
+    create_directory_if_nonexistent(test_output_directory)
+    output_file = join_path(test_output_directory, name + ".txt")
+
+    with open(output_file, 'w') as test_result_file:
+        test_result_file.write(str(len(results)) + " tests failed")
+        for result in results:
+            if result.failure_type == FailureType.ACTUAL_NOT_EXPECTED:
+                test_result_file.write("\n\n")
+                test_result_file.write(_output_failed_test_result_with_name(str(result.exception), result.test_name))
+            elif result.failure_type == FailureType.CRASH:
+                test_result_file.write("\n\n")
+                test_result_file.write(_output_crashed_test_exception_with_name(result.exception, result.test_name))
 
 def _output_failed_test_result_with_name(exception: Exception, test_name: str):
-    print(f'The following test failed: {test_name}.')
-    print(exception)
+    # write output to file test_name in output_directory)
+    return f'The following test failed: {test_name}.' + "\n" + exception
 
 def _output_crashed_test_exception_with_name(exception: Exception, test_name: str):
-    print(f'The following test crashed: {test_name}')
-    print(f'It gave the following crash error: {exception}')
+    # write output to file test_name in output_directory)
+    return f'The following test crashed: {test_name}' + "\n" + f'It gave the following crash error: {exception}'
 
 class TestCase:
     @classmethod
