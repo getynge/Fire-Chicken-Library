@@ -4,9 +4,16 @@ from .knausj_boundary import *
 from .path_utilities import *
 
 class TestSuite:
-    def __init__(self, name):
+    instance_number = 1
+    def __init__(self, name="",*,directory=""):
         self.test_cases = []
-        self.name = name
+        if name != "":
+            self.name = name
+        else:
+            self.name = str(TestSuite.instance_number)
+            TestSuite.instance_number += 1
+        self._test_output_directory = directory
+
 
     def insert(self, test_case):
         self.test_cases.append(test_case)
@@ -15,10 +22,10 @@ class TestSuite:
         failed_test_results = []
         for test_case in self.test_cases:            
             failed_test_results.extend(test_case._private_private_test_methods())
-        _output_test_results(self.name,failed_test_results)
+        _output_test_results(self.name,failed_test_results,self._test_output_directory)
 
-def _output_test_results(name, results):
-    output_directory = _prepare_output_directory()
+def _output_test_results(name, results,directory=""):
+    output_directory = _prepare_output_directory(directory)
     output_file = _compute_output_filepath_in_directory_with_filename(output_directory, name)
     _output_test_results_to_file(results, output_file)
 
@@ -26,10 +33,12 @@ def _compute_output_filepath_in_directory_with_filename(directory, test_name):
     output_filepath = join_path(directory, test_name + ".txt")
     return output_filepath
 
-def _prepare_output_directory():
-    data_directory = _get_data_directory()
-    create_directory_if_nonexistent(data_directory)
-    test_output_directory = join_path(data_directory, "test_output")
+def _prepare_output_directory(directory=""):
+    if directory == "":
+        data_directory = _get_data_directory()
+        test_output_directory = join_path(data_directory, "test_output")
+    else:
+         test_output_directory = directory
     create_directory_if_nonexistent(test_output_directory)
     return test_output_directory
 
