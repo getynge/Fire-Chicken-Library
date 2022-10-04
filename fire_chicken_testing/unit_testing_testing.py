@@ -178,6 +178,9 @@ class SetupTestCaseSimpleTest(SetupTestCase):
         assert_true(False)
 
 def test_setup_test_case():
+    test_simple_parent_class_functionality_still_works()
+
+def test_simple_parent_class_functionality_still_works():
     class_name = SetupTestCaseSimpleTest
     results = get_test_results(SetupTestCaseSimpleTest)
     
