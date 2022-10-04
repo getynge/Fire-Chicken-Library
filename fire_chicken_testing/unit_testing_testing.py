@@ -148,6 +148,7 @@ def get_test_results(test_case_class):
 def test_test_case_excludes_proper_method_names():
     method_name = "_this_method_should_not_get_tested"
     test_case_class = TestCaseTest
+
     assert_method_not_in_failed_test_results(method_name, test_case_class)
     assert_method_not_in_methods_to_test(method_name, test_case_class)
     assert_method_in_test_case_methods(method_name, test_case_class)
@@ -165,3 +166,23 @@ def assert_method_in_test_case_methods(method_name, test_case_class):
     assert(method_name in methods)
 
 test_test_case()
+
+class SetupTestCaseSimpleTest(SetupTestCase):
+    def this_should_pass(self):
+        pass
+
+    def this_should_crash(self):
+        raise Exception()
+    
+    def this_should_fail_normally(self):
+        assert_true(False)
+
+def test_setup_test_case():
+    class_name = SetupTestCaseSimpleTest
+    results = get_test_results(SetupTestCaseSimpleTest)
+    
+    assert_test_passed(results, 'this_should_pass', class_name)
+    assert_test_crashes(results, 'this_should_crash')
+    assert_test_fails_properly(results, 'this_should_fail_normally')
+
+test_setup_test_case()
