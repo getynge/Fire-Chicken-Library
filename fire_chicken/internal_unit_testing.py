@@ -2,18 +2,32 @@ from dataclasses import dataclass
 from enum import Enum
 from .knausj_boundary import *
 from .path_utilities import *
+from talon import actions
 
 class TestSuite:
-    instance_number = 1
-    def __init__(self, name="",*,directory=""):
+    available_default_instance_list = [1]
+    def __init__(self, name="", *, directory="", display_results=True, notify=True):
         self.test_cases = []
         if name != "":
             self.name = name
         else:
-            self.name = str(TestSuite.instance_number)
-            TestSuite.instance_number += 1
+            self.name = self._get_default_name()
         self._test_output_directory = directory
+        self.display_results = display_results
+        self.notify = notify
 
+    def __del__(self):
+        if self.name.isdigit():
+            TestSuite.available_default_instance_list.append(int(self.name))
+
+
+    def _get_default_name(self):
+        next_instance = min(TestSuite.available_default_instance_list)
+        if len(TestSuite.available_default_instance_list) == 1:
+            TestSuite.available_default_instance_list[0] = next_instance + 1
+        else:
+            TestSuite.available_default_instance_list.remove(next_instance)
+        return str(next_instance)
 
     def insert(self, test_case):
         self.test_cases.append(test_case)
@@ -22,12 +36,18 @@ class TestSuite:
         failed_test_results = []
         for test_case in self.test_cases:            
             failed_test_results.extend(test_case._private_private_test_methods())
-        _output_test_results(self.name,failed_test_results,self._test_output_directory)
+        if failed_test_results != []:
+            _output_test_results(self.name,failed_test_results,self._test_output_directory,self.display_results)
+            if self.notify:
+                actions.app.notify('Test Suite ' + self.name + ' reported failure!')
 
-def _output_test_results(name, results,directory=""):
+def _output_test_results(name, results, directory="", display_results=True):
     output_directory = _prepare_output_directory(directory)
     output_file = _compute_output_filepath_in_directory_with_filename(output_directory, name)
     _output_test_results_to_file(results, output_file)
+    if display_results:
+        actions.user.edit_text_file(output_file)
+
 
 def _compute_output_filepath_in_directory_with_filename(directory, test_name):
     output_filepath = join_path(directory, test_name + ".txt")
@@ -92,7 +112,6 @@ class TestCase:
                 instantiation._private_private_add_method_test_result_to_list(method, failed_test_results)
         return failed_test_results
     
-    
     def _private_private_add_method_test_result_to_list(self, method, list):
             test_result = self._private_private_test_method(method)
             if self._private_private_should_add_test_result(test_result):
@@ -120,12 +139,25 @@ class SetupTestCase(TestCase):
         self._after_each()
         return test_result
 
+    @classmethod
+    def _private_private_test_methods(cls):
+        cls._before_all()
+        failed_test_results = super()._private_private_test_methods(cls)
+        cls._after_all()
+        return failed_test_results
+
     def _before_each(self):
         pass
 
     def _after_each(self):
         pass
-        
+
+    def _before_all(self):
+        pass
+
+    def _after_all(self):
+        pass
+
 class DraftTextTestCase(SetupTestCase):
     def _before_each(self):
         # open draft window and delete all text
