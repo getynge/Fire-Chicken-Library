@@ -162,7 +162,7 @@ def assert_method_not_in_methods_to_test(method_name, test_case_class):
     assert(method_name not in methods_to_test)
 
 def assert_method_in_test_case_methods(method_name, test_case_class):
-    methods = TestCaseTest._private_private_get_methods()
+    methods = test_case_class._private_private_get_methods()
     assert(method_name in methods)
 
 test_test_case()
