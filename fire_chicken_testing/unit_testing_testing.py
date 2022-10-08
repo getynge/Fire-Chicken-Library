@@ -177,15 +177,60 @@ class SetupTestCaseSimpleTest(SetupTestCase):
     def this_should_fail_normally(self):
         assert_true(False)
 
+
+class SetupTestCaseTest(SetupTestCase):
+    def _before_all(self):
+        self.before_each_called = False
+        self.before_all_called = True
+        self.after_all_called = False
+        self.after_each_called = False
+        print('before all')
+
+    def _before_each(self):
+        self.before_each_called = True
+        print('before each')
+    
+    def _after_each(self):
+        self.after_each_called = True
+        print('after each')
+    
+    def _after_all(self):
+        self.after_all_called = True
+        self._assert_all_conditions_true()
+        print('after all')
+
+    def _assert_all_conditions_true(self):
+        assert_true(self.before_each_called)
+        assert_true(self.before_all_called)
+        assert_true(self.after_all_called)
+        assert_true(self.after_each_called)
+
+    
+    def test_only_before_all_and_before_each_called(self):
+        print('Made it to the test')
+        assert_true(self.before_each_called)
+        assert_true(self.before_all_called)
+        assert_false(self.after_all_called)
+        assert_false(self.after_each_called)
+        
+
 def test_setup_test_case():
     test_simple_parent_class_functionality_still_works()
+    test_setup_functionality()
 
 def test_simple_parent_class_functionality_still_works():
     class_name = SetupTestCaseSimpleTest
-    results = get_test_results(SetupTestCaseSimpleTest)
+    results = get_test_results(class_name)
     
     assert_test_passed(results, 'this_should_pass', class_name)
     assert_test_crashes(results, 'this_should_crash')
     assert_test_fails_properly(results, 'this_should_fail_normally')
+
+def test_setup_functionality():
+    class_name = SetupTestCaseTest
+    results = get_test_results(class_name)
+
+    assert_test_passed(results, 'test_only_before_all_and_before_each_called', class_name)
+
 
 test_setup_test_case()
