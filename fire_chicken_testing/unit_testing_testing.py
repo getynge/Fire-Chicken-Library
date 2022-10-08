@@ -212,6 +212,14 @@ class SetupTestCaseTest(SetupTestCase):
         assert_true(self.before_all_called)
         assert_false(self.after_all_called)
         assert_false(self.after_each_called)
+
+    #This gets called second because the methods to test are currently called in alphabetical order
+    #If that changes, this test should change
+    def test_only_before_all_before_each_and_after_each_called(self):
+        assert_true(self.before_each_called)
+        assert_true(self.before_all_called)
+        assert_true(self.after_each_called)
+        assert_false(self.after_all_called)
         
 
 def test_setup_test_case():
@@ -231,6 +239,7 @@ def test_setup_functionality():
     results = get_test_results(class_name)
 
     assert_test_passed(results, 'test_only_before_all_and_before_each_called', class_name)
+    assert_test_passed(results, 'test_only_before_all_before_each_and_after_each_called', class_name)
 
 
 test_setup_test_case()
