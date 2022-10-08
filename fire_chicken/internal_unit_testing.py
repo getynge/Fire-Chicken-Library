@@ -106,10 +106,14 @@ class TestCase:
     @classmethod
     def _private_private_test_methods(cls):
         instantiation = cls()
+        failed_test_results = instantiation._private_private_test_methods_of_instantiation()
+        return failed_test_results
+
+    def _private_private_test_methods_of_instantiation(self):
         failed_test_results = []
-        methods = cls._private_private_get_methods_to_test_names()
+        methods = self._private_private_get_methods_to_test_names()
         for method in methods:
-                instantiation._private_private_add_method_test_result_to_list(method, failed_test_results)
+            self._private_private_add_method_test_result_to_list(method, failed_test_results)
         return failed_test_results
     
     def _private_private_add_method_test_result_to_list(self, method, list):
@@ -141,9 +145,10 @@ class SetupTestCase(TestCase):
 
     @classmethod
     def _private_private_test_methods(cls):
-        cls._before_all()
-        failed_test_results = super()._private_private_test_methods(cls)
-        cls._after_all()
+        instantiation = cls()
+        instantiation._before_all()
+        failed_test_results = instantiation._private_private_test_methods_of_instantiation()
+        instantiation._after_all()
         return failed_test_results
 
     def _before_each(self):
