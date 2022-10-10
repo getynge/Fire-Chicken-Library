@@ -1,4 +1,5 @@
 from ..fire_chicken.internal_unit_testing import *
+from talon import Module, actions
 
 class TestCaseTest(TestCase):
     def this_should_fail_properly(self):
@@ -249,3 +250,38 @@ def test_setup_functionality():
 
 
 test_setup_test_case()
+
+class TestDraftTextTestCase(DraftTextTestCase):
+    def test_equals_expected(self):
+        expected_text = 'expected'
+        actions.insert(expected_text)
+        assert_draft_window_test_equals(expected_text)
+
+    def test_equals_incorrect_expectation_should_fail(self):
+        actions.insert('the wrong text')
+        assert_draft_window_test_equals('incorrect expectation')
+
+    def test_this_can_handle_longer_text(self):
+        expected_text = 'This is a longer text to be inserted to see if the code will accidentally close the draft window too soon.'
+
+        actions.insert(expected_text)
+        assert_draft_window_test_equals(expected_text)
+
+    def test_prefix_results_in_failure(self):
+        prefix = 'this is the start'
+        expected = prefix + ' and this is the ending'
+
+        actions.insert(prefix)
+        assert_draft_window_test_equals(expected)
+
+module = Module()
+@module.action_class
+class Actions:
+    def fire_chicken_library_testing_test_draft_text_test_case():
+        '''Tests TestSetupTestCase'''
+        classname = TestDraftTextTestCase
+        results = get_test_results(classname)
+        assert_test_passed(results, 'test_equals_expected', classname)
+        assert_test_passed(results, 'test_this_can_handle_longer_text', classname)
+        assert_test_fails_properly(results, 'test_equals_incorrect_expectation_should_fail')
+        assert_test_fails_properly(results, 'test_prefix_results_in_failure')
