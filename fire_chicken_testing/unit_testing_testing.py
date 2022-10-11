@@ -1,6 +1,16 @@
 from ..fire_chicken.internal_unit_testing import *
 from talon import Module, actions
 
+def test_assert_actual_equals_expected_fails_properly():
+    try:
+        assert_actual_equals_expected('actual', 'expected')
+        raise Exception('test_assert_actual_equals_expected_fails_properly did not raise proper exception!')
+    except TestActualNotExpectedException as exception:
+        assert(str(exception) == 'Result:\nExpected:\nexpected\nActual:\nactual')
+
+test_assert_actual_equals_expected_fails_properly()
+
+
 class TestCaseTest(TestCase):
     def this_should_fail_properly(self):
         raise TestActualNotExpectedException('no actual value', 'failed without crashing')
