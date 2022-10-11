@@ -45,6 +45,21 @@ test_assert_actual_equals_expected_fails_properly()
 test_assert_true_fails_properly()
 test_assert_false_fails_properly()
 
+def test_assert_true_passes_when_given_true():
+    assert_true(True)
+
+def test_assert_false_passes_when_given_false():
+    assert_false(False)
+
+def test_assert_actual_equals_expected_passes_when_actual_equals_expected():
+    actual = 'actual'
+    expected = actual
+    assert_actual_equals_expected(actual, expected)
+
+test_assert_true_passes_when_given_true()
+test_assert_false_passes_when_given_false()
+test_assert_actual_equals_expected_passes_when_actual_equals_expected()
+
 
 class TestCaseTest(TestCase):
     def this_should_fail_properly(self):
