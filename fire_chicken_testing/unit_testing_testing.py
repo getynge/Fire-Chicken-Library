@@ -7,6 +7,18 @@ def test_assert_actual_equals_expected_fails_properly():
     expected = 'expected'
     test_actual_equals_expected_style_assert_fails_properly(assert_actual_equals_expected, actual, expected)
 
+def test_assert_true_fails_properly():
+    actual = False
+    expected = True
+    test_actual_equals_expected_style_single_argument_assert_fails_properly(assert_true, actual, expected)
+
+def test_actual_equals_expected_style_single_argument_assert_fails_properly(assert_function_to_test, actual, expected):
+    try:
+        assert_function_to_test(actual)
+        raise Exception('Assertion function did not thrown an exception!')
+    except TestActualNotExpectedException as exception:
+        assert_exception_message_equals_correct_equals_expected_failure_message(exception, actual, expected)
+
 def test_actual_equals_expected_style_assert_fails_properly(assert_function_to_test, actual, expected):
     try:
         assert_function_to_test(actual, expected)
@@ -28,6 +40,7 @@ def compute_actual_equals_expected_failure_message(actual: str, expected: str):
     return f'Result:\nExpected:\n{expected}\nActual:\n{actual}'
 
 test_assert_actual_equals_expected_fails_properly()
+test_assert_true_fails_properly()
 
 
 class TestCaseTest(TestCase):
