@@ -12,6 +12,11 @@ def test_assert_true_fails_properly():
     expected = True
     test_actual_equals_expected_style_single_argument_assert_fails_properly(assert_true, actual, expected)
 
+def test_assert_false_fails_properly():
+    actual = True
+    expected = False
+    test_actual_equals_expected_style_single_argument_assert_fails_properly(assert_false, actual, expected)
+
 def test_actual_equals_expected_style_single_argument_assert_fails_properly(assert_function_to_test, actual, expected):
     try:
         assert_function_to_test(actual)
@@ -41,6 +46,7 @@ def compute_actual_equals_expected_failure_message(actual: str, expected: str):
 
 test_assert_actual_equals_expected_fails_properly()
 test_assert_true_fails_properly()
+test_assert_false_fails_properly()
 
 
 class TestCaseTest(TestCase):
