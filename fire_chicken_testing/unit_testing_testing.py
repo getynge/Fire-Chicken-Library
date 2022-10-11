@@ -1,20 +1,25 @@
 from ..fire_chicken.internal_unit_testing import *
 from talon import Module, actions
 
+
 def test_assert_actual_equals_expected_fails_properly():
     actual = 'actual'
     expected = 'expected'
+    test_actual_equals_expected_style_assert_fails_properly(assert_actual_equals_expected, actual, expected)
+
+def test_actual_equals_expected_style_assert_fails_properly(assert_function_to_test, actual, expected):
     try:
-        assert_actual_equals_expected(actual, expected)
-        raise Exception('test_assert_actual_equals_expected_fails_properly did not raise proper exception!')
+        assert_function_to_test(actual, expected)
+        raise Exception('Assertion function did not thrown an exception!')
     except TestActualNotExpectedException as exception:
         assert_exception_message_equals_correct_equals_expected_failure_message(exception, actual, expected)
+    
 
-def assert_exception_message_equals_correct_equals_expected_failure_message(exception: Exception, actual: str, expected: str):
+def assert_exception_message_equals_correct_equals_expected_failure_message(exception: Exception, actual, expected):
     exception_message = str(exception)
     assert_message_equals_actual_equals_expected_failure_message(exception_message, actual, expected)
 
-def assert_message_equals_actual_equals_expected_failure_message(message: str, actual: str, expected: str):
+def assert_message_equals_actual_equals_expected_failure_message(message: str, actual, expected):
     correct_message = compute_actual_equals_expected_failure_message(actual, expected)
     assert(message == correct_message)
 
