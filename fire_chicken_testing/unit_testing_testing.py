@@ -111,24 +111,24 @@ class TestCaseTest(TestCase):
     def _this_method_should_not_get_tested(self):
         pass
 
-def test_test_case():
-    test_test_case_results()
-    test_test_case_excludes_proper_method_names()
+def test_test_case(class_name = TestCaseTest):
+    test_test_case_results(class_name)
+    test_test_case_excludes_proper_method_names(class_name)
 
-def test_test_case_results():
-    results = get_test_results(TestCaseTest)
+def test_test_case_results(class_name):
+    results = get_test_results(class_name)
 
     test_this_should_fail_properly_fails_properly(results)
     test_this_will_crash_crashes(results)
-    test_two_plus_two_equals_four_passes(results, TestCaseTest)
+    test_two_plus_two_equals_four_passes(results, class_name)
     test_failed_version_of_two_plus_two_equals_four_fails_properly(results)
-    test_true_is_true_passes(results, TestCaseTest)
+    test_true_is_true_passes(results, class_name)
     test_failed_version_of_true_is_true_fails_properly(results)
-    test_false_is_false_passes(results, TestCaseTest)
+    test_false_is_false_passes(results, class_name)
     test_failed_version_of_false_is_false_fails_properly(results)
-    test_test_assert_failure_with_expected_exception_passes(results, TestCaseTest)
+    test_test_assert_failure_with_expected_exception_passes(results, class_name)
     test_test_assert_failure_without_exception_fails_properly(results)
-    test_test_assert_failure_with_argument_and_expected_exception_passes(results, TestCaseTest)
+    test_test_assert_failure_with_argument_and_expected_exception_passes(results, class_name)
     test_test_assert_failure_with_argument_without_exception_fails_properly(results)
 
 def test_this_should_fail_properly_fails_properly(results):
@@ -206,13 +206,12 @@ def get_test_results(test_case_class):
     return test_results_dictionary
 
 
-def test_test_case_excludes_proper_method_names():
+def test_test_case_excludes_proper_method_names(class_name):
     method_name = "_this_method_should_not_get_tested"
-    test_case_class = TestCaseTest
 
-    assert_method_not_in_failed_test_results(method_name, test_case_class)
-    assert_method_not_in_methods_to_test(method_name, test_case_class)
-    assert_method_in_test_case_methods(method_name, test_case_class)
+    assert_method_not_in_failed_test_results(method_name, class_name)
+    assert_method_not_in_methods_to_test(method_name, class_name)
+    assert_method_in_test_case_methods(method_name, class_name)
 
 def assert_method_not_in_failed_test_results(method_name, test_case_class):
     results = test_case_class._private_private_test_methods()
@@ -228,15 +227,8 @@ def assert_method_in_test_case_methods(method_name, test_case_class):
 
 test_test_case()
 
-class SetupTestCaseSimpleTest(SetupTestCase):
-    def this_should_pass(self):
-        pass
-
-    def this_should_crash(self):
-        raise Exception()
-    
-    def this_should_fail_normally(self):
-        assert_true(False)
+class SetupTestCaseSimpleTest(TestCaseTest):
+    pass
 
 
 class SetupTestCaseTest(SetupTestCase):
@@ -294,12 +286,7 @@ def test_setup_test_case():
     test_setup_functionality()
 
 def test_simple_parent_class_functionality_still_works():
-    class_name = SetupTestCaseSimpleTest
-    results = get_test_results(class_name)
-    
-    assert_test_passed(results, 'this_should_pass', class_name)
-    assert_test_crashes(results, 'this_should_crash')
-    assert_test_fails_properly(results, 'this_should_fail_normally')
+    test_test_case(SetupTestCaseSimpleTest)
 
 def test_setup_functionality():
     class_name = SetupTestCaseTest
