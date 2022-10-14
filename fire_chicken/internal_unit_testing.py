@@ -13,8 +13,13 @@ class TestSuite:
         else:
             self.name = self._get_default_name()
         self._test_output_directory = directory
+        self._set_display_and_notify(display_results,notify)
+        
+
+    def _set_display_and_notify(self,display_results,notify):
         self.display_results = display_results
         self.notify = notify
+
 
     def __del__(self):
         if self.name.isdigit():
@@ -40,6 +45,24 @@ class TestSuite:
             _output_test_results(self.name,failed_test_results,self._test_output_directory,self.display_results)
             if self.notify:
                 actions.app.notify('Test Suite ' + self.name + ' reported failure!')
+
+class SilentTestSuite (TestSuite):
+
+    def _set_display_and_notify(self,display_results,notify):
+        self.display_results = False
+        self.notify = False
+
+class NotifyOnlyTestSuite (TestSuite):
+
+    def _set_display_and_notify(self,display_results,notify):
+        self.display_results = False
+        self.notify = True
+
+class DisplayOnlyTestSuite (TestSuite):
+
+    def _set_display_and_notify(self,display_results,notify):
+        self.display_results = True
+        self.notify = False
 
 def _output_test_results(name, results, directory="", display_results=True):
     output_directory = _prepare_output_directory(directory)
