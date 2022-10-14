@@ -71,11 +71,19 @@ def test_test_assert_function_fails_with_exception_given_arguments_fails_properl
     except TestDidNotRaiseExpectedExceptionException as expected_exception:
         pass
 
+def test_assert_function_fails_with_exception_given_arguments_fails_properly_when_expecting_the_wrong_exception():
+    try:
+        assert_function_fails_with_exception_given_arguments(throws_value_error, TypeError, True, False)
+    except TestDidNotRaiseExpectedExceptionException as expected_exception:
+        pass
+    
+
 def throws_value_error(argument, another_argument):
         raise ValueError()
 
 test_assert_function_fails_with_exception_given_arguments_passes_properly()
 test_test_assert_function_fails_with_exception_given_arguments_fails_properly_with_no_exception()
+test_assert_function_fails_with_exception_given_arguments_fails_properly_when_expecting_the_wrong_exception()
 
 class TestCaseTest(TestCase):
     def this_should_fail_properly(self):
