@@ -198,6 +198,8 @@ def assert_function_fails_with_exception_given_arguments(function, exception, *a
         raise TestDidNotRaiseExpectedExceptionException('The test failed to raise any exceptions!')
     except exception as expected_exception:
         pass        
+    except Exception as unexpected_exception:
+        raise TestDidNotRaiseExpectedExceptionException(f'The test raised an unexpected exception: {unexpected_exception}')
 
 def assert_draft_window_test_equals(expected: str):
     previous_draft_text = ''
