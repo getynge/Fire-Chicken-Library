@@ -64,20 +64,20 @@ def test_assert_function_fails_with_exception_given_arguments_passes_properly():
     assert_function_fails_with_exception_given_arguments(throws_value_error, ValueError, 5, 'argument')
 
 def test_test_assert_function_fails_with_exception_given_arguments_fails_properly_with_no_exception():
-    def throws_nothing():
+    def throws_nothing(argument, another_argument):
         pass
-    try:
-        assert_function_fails_with_exception_given_arguments(throws_nothing, ValueError, 5, 2000)
-    except TestDidNotRaiseExpectedExceptionException as expected_exception:
-        pass
+    test_assert_function_fails_with_exception_given_arguments_fails_properly(throws_nothing, ValueError, 5, 2000)
 
 def test_assert_function_fails_with_exception_given_arguments_fails_properly_when_expecting_the_wrong_exception():
+    test_assert_function_fails_with_exception_given_arguments_fails_properly(throws_value_error, TypeError, True, False)
+
+def test_assert_function_fails_with_exception_given_arguments_fails_properly(test_function, expected_exception, *args):
     try:
-        assert_function_fails_with_exception_given_arguments(throws_value_error, TypeError, True, False)
+        assert_function_fails_with_exception_given_arguments(test_function, expected_exception, *args)
+        raise Exception('Asserting exception did not fail properly!')
     except TestDidNotRaiseExpectedExceptionException as expected_exception:
         pass
-    
-
+        
 def throws_value_error(argument, another_argument):
         raise ValueError()
 
