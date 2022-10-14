@@ -60,6 +60,22 @@ test_assert_true_passes_when_given_true()
 test_assert_false_passes_when_given_false()
 test_assert_actual_equals_expected_passes_when_actual_equals_expected()
 
+def test_assert_function_fails_with_exception_given_arguments_passes_properly():
+    assert_function_fails_with_exception_given_arguments(throws_value_error, ValueError, 5, 'argument')
+
+def test_test_assert_function_fails_with_exception_given_arguments_fails_properly_with_no_exception():
+    def throws_nothing():
+        pass
+    try:
+        assert_function_fails_with_exception_given_arguments(throws_nothing, ValueError, 5, 2000)
+    except TestDidNotRaiseExpectedExceptionException as expected_exception:
+        pass
+
+def throws_value_error(argument, another_argument):
+        raise ValueError()
+
+test_assert_function_fails_with_exception_given_arguments_passes_properly()
+test_test_assert_function_fails_with_exception_given_arguments_fails_properly_with_no_exception()
 
 class TestCaseTest(TestCase):
     def this_should_fail_properly(self):
