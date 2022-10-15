@@ -356,3 +356,13 @@ class Actions:
         assert_test_passed(results, 'test_this_can_handle_longer_text', classname)
         assert_test_fails_properly(results, 'test_equals_incorrect_expectation_should_fail')
         assert_test_fails_properly(results, 'test_prefix_results_in_failure')
+
+
+
+def assert_file_contains_expected_text(path, expected_text, maximum_file_size = 50000000):
+    if os.path.getsize(path) > maximum_file_size:
+        raise ValueError(f'The file at {path} exceeded the maximum number of bites of {maximum_file_size}!')
+    actual_text = ''
+    with open(path, 'r') as file:
+        actual_text = file.read(maximum_file_size)
+    assert(actual_text == expected_text)
