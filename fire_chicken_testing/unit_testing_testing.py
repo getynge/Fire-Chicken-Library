@@ -357,12 +357,18 @@ class Actions:
         assert_test_fails_properly(results, 'test_equals_incorrect_expectation_should_fail')
         assert_test_fails_properly(results, 'test_prefix_results_in_failure')
 
-
+def assert_files_have_matching_text_(path1, path2, maximum_file_size = 50000000):
+    path1_text = get_file_text(path1, maximum_file_size)
+    assert_file_contains_expected_text(path2, path1_text, maximum_file_size)
 
 def assert_file_contains_expected_text(path, expected_text, maximum_file_size = 50000000):
+    actual_text = get_file_text(path, maximum_file_size)
+    assert(actual_text == expected_text)
+
+def get_file_text(path, maximum_file_size = 50000000):
     if os.path.getsize(path) > maximum_file_size:
         raise ValueError(f'The file at {path} exceeded the maximum number of bites of {maximum_file_size}!')
-    actual_text = ''
+    text = ''
     with open(path, 'r') as file:
-        actual_text = file.read(maximum_file_size)
-    assert(actual_text == expected_text)
+        text = file.read(maximum_file_size)
+    return text
