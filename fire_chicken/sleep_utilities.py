@@ -1,8 +1,11 @@
 from talon import actions, Module
 
 class SleepSetting:
-    def __init__(self, name: str, default_amount: float, description: str):
-        module = Module()
+    def __init__(self, name: str, default_amount: float, description: str, provided_module = None):
+        module = provided_module
+        if module is None:
+            module = Module()
+        
         self.setting = module.setting(
             name,
             type = float,
