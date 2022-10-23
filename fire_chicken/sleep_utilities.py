@@ -12,6 +12,9 @@ class SleepSetting:
 
     def sleep(self):
         actions.sleep(self.get())
+
+    def sleep_with_factor(self, factor):
+        actions.sleep(self.get() * factor)
     
     def get(self):
         return self.setting.get()
