@@ -1,6 +1,6 @@
 from talon import actions, Module
 
-class DelaySetting:
+class SleepSetting:
     def __init__(self, name: str, default_amount: int, description: str, units: str = 'ms'):
         module = Module()
         self.setting = module.setting(
@@ -12,5 +12,8 @@ class DelaySetting:
         self.units = units
 
     def sleep(self):
-        actions.sleep(f'{self.setting.get()}' + self.units)
+        actions.sleep(f'{self.get()}' + self.units)
     
+    def get(self):
+        return self.setting.get()
+
