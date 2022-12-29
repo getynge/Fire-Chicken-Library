@@ -2,9 +2,7 @@ import math
 from talon import ctrl, actions
 
 class MousePosition:
-    STRING_START = '('
-    STRING_ENDING = ')'
-    COORDINATE_SEPARATOR = ', '
+    COORDINATE_SEPARATOR = ' '
     def __init__(self, horizontal: int, vertical: int):
         self.horizontal = horizontal
         self.vertical = vertical
@@ -43,18 +41,15 @@ class MousePosition:
         actions.mouse_move(self.horizontal, self.vertical)
 
     def __str__(self) -> str:
-        return MousePosition.STRING_START + str(self.horizontal) + MousePosition.COORDINATE_SEPARATOR \
-        + str(self.vertical) + MousePosition.STRING_ENDING
-
+        return str(self.horizontal) + MousePosition.COORDINATE_SEPARATOR + str(self.vertical)
+    
     #assumes that the text properly represents a mouse position object
     @staticmethod
     def from_text(text: str):
-        horizontal_start = text.index(MousePosition.STRING_START) + 1
         horizontal_ending = text.index(MousePosition.COORDINATE_SEPARATOR)
-        horizontal = int(text[horizontal_start : horizontal_ending])
+        horizontal = int(text[0 : horizontal_ending])
         vertical_start = horizontal_ending + 1
-        vertical_ending = text.index(MousePosition.STRING_ENDING)
-        vertical = int(text[vertical_start : vertical_ending])
+        vertical = int(text[vertical_start:])
         return MousePosition(horizontal, vertical)
 
     @staticmethod
