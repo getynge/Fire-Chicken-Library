@@ -43,6 +43,9 @@ class MousePosition:
     def __str__(self) -> str:
         return str(self.horizontal) + MousePosition.COORDINATE_SEPARATOR + str(self.vertical)
     
+    def __repr__(self) -> str:
+        return str(self)
+
     #assumes that the text properly represents a mouse position object
     @staticmethod
     def from_text(text: str):
