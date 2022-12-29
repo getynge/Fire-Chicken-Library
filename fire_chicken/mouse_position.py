@@ -69,6 +69,9 @@ class MousePosition:
     def distance_from(self, other):
         return math.sqrt((self.horizontal - other.horizontal)**2 + (self.vertical - other.vertical)**2)
 
+    def compute_magnitude(self):
+        return self.distance_from(MousePosition(0, 0))
+
     @staticmethod
     def compute_position_scaled_by(position, number):
         if MousePosition._correct_types_for_multiplication(position, number):
