@@ -32,6 +32,12 @@ class MousePosition:
         self.horizontal -= other.horizontal
         self.vertical -= other.vertical
         return self
+    def __mul__(self, other):
+        scaled_position = MousePosition.compute_position_scaled_by(self, other)
+        return scaled_position
+    def __rmul__(self, other):
+        scaled_position = MousePosition.compute_position_scaled_by(self, other)
+        return scaled_position
 
     def go(self):
         actions.mouse_move(self.horizontal, self.vertical)
@@ -63,4 +69,13 @@ class MousePosition:
     def distance_from(self, other):
         return math.sqrt((self.horizontal - other.horizontal)**2 + (self.vertical - other.vertical)**2)
 
+    @staticmethod
+    def compute_position_scaled_by(position, number):
+        if MousePosition._correct_types_for_multiplication(position, number):
+            result: MousePosition = MousePosition(position.get_horizontal()*number, position.get_vertical()*number)
+            return result
+        return NotImplemented
+    @staticmethod
+    def _correct_types_for_multiplication(position, number):
+        return isinstance(position, MousePosition) and (type(number) is float or type(number) is int)
 
