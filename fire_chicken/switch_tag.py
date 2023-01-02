@@ -1,11 +1,11 @@
 from talon import Module, Context
-from .tag_utilities import compute_tag_name, deactivate_tags_in_context, make_tag_only_active_tag_in_context, compute_postfix, compute_prefix
+from .tag_utilities import compute_tag_name_with_proper_prefix, deactivate_tags_in_context, make_tag_only_active_tag_in_context, compute_postfix, compute_prefix
 
 class SwitchTag:
     def __init__(self, name: str, description: str):
+        self.name = compute_tag_name_with_proper_prefix(name)
         module = Module()
-        module.tag(name, description)
-        self.name = compute_tag_name(name)
+        module.tag(self.get_postfix(), description)
         self.context = Context()
 
     def on(self):
