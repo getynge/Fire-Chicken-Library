@@ -1,26 +1,19 @@
-from talon import Module, Context, actions, app
-
+from talon import Module, Context
+from .tag_utilities import compute_tag_name_with_proper_prefix, deactivate_tags_in_context, make_tag_only_active_tag_in_context, compute_postfix, compute_prefix
 
 class SwitchTag:
     def __init__(self, name: str, description: str):
+        self.name = compute_tag_name_with_proper_prefix(name)
         module = Module()
-        module.tag(name, description)
-        self.name = name
+        module.tag(self.get_postfix(), description)
         self.context = Context()
-        app.register('ready', self._register)
-    def _register(self):
-        try:
-            actions.user.switch_tag_insert(self)
-        except Exception as exception:
-            print('Switch tag manager not available', exception)
+
     def on(self):
-        self.context.tags = [self.get_name()]
-    def activate(self):
-        self.on()
+        make_tag_only_active_tag_in_context(self.name, self.context)
+
     def off(self):
-        self.context.tags = []
-    def deactivate(self):
-        self.off()
+        deactivate_tags_in_context(self.context)
+
     def switch(self):
         if len(self.context.tags) == 0:
             self.on()
@@ -28,6 +21,10 @@ class SwitchTag:
             self.off()
 
     def get_name(self) -> str:
-        return 'user.' + self.name
-    def get_postfix(self) -> str:
         return self.name
+
+    def get_postfix(self) -> str:
+        return compute_postfix(self.name)
+
+    def get_prefix(self) -> str:
+        return compute_prefix(self.name)
