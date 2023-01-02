@@ -23,7 +23,7 @@ class SwitchTag:
     def get_name(self) -> str:
         return self.name
     
-    def _get_dot_index(self):
+    def _get_dot_index(self) -> int:
         return self.name.find('.')
 
     def get_postfix(self) -> str:
