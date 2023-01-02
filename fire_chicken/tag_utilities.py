@@ -1,8 +1,8 @@
-def compute_tag_name_with_proper_prefix(partial_name: str):
-    if has_prefix(partial_name):
-        return partial_name
+def compute_tag_name_with_proper_prefix(original_name: str):
+    if has_prefix(original_name):
+        return original_name
     else:
-        return 'user.' + partial_name
+        return 'user.' + original_name
     
 def has_prefix(text: str):
     return text.find('.') > 0
