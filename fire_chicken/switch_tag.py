@@ -1,5 +1,5 @@
 from talon import Module, Context
-from .tag_utilities import compute_tag_name
+from .tag_utilities import compute_tag_name, deactivate_tags_in_context, make_tag_only_active_tag_in_context
 
 class SwitchTag:
     def __init__(self, name: str, description: str):
@@ -9,10 +9,10 @@ class SwitchTag:
         self.context = Context()
 
     def on(self):
-        self.context.tags = [self.name]
+        make_tag_only_active_tag_in_context(self.name, self.context)
 
     def off(self):
-        self.context.tags = []
+        deactivate_tags_in_context(self.context)
 
     def switch(self):
         if len(self.context.tags) == 0:
