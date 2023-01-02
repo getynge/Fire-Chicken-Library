@@ -1,4 +1,4 @@
-def compute_tag_name(partial_name: str):
+def compute_tag_name_with_proper_prefix(partial_name: str):
     if has_prefix(partial_name):
         return partial_name
     else:
