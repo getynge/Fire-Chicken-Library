@@ -176,7 +176,7 @@ class StringFile(StorageFile):
 class BooleanFile(StorageFile):
     @classmethod
     def get_value_from_text(self, text: str):
-        return bool(text)
+        return text == 'True'
     
     def _get_initial_value(self):
         return False
